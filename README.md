@@ -17,6 +17,7 @@ npm i --save-peer acorn acorn-walk fast-xml-parser quickjs-emscripten
 npm config get registry
 npm config delete registry
 # npm config set registry https://registry.npmjs.org/
+npm version patch
 npm publish
 npm config set registry https://registry.npmmirror.com/
 ```
