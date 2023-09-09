@@ -16,9 +16,24 @@
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joehecn/js-sandbox.git"
+  },
+  "keywords": [
+    "javascript",
+    "sandbox",
+    "parser"
+  ],
+  "author": "leanbrown@live.cn",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joehecn/js-sandbox/issues"
+  },
+  "homepage": "https://github.com/joehecn/js-sandbox#readme",
+  "files": [
+    "lib/**/*"
+  ],
   "devDependencies": {
     "@types/node": "^20.6.0",
     "@vitest/coverage-v8": "^0.34.4",
