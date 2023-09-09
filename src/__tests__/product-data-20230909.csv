@@ -1,0 +1,5239 @@
+"id","payload_encoder_script","payload_decoder_script","payload_encoder_option","payload_encoder_return","payload_decoder_option","payload_decoder_return","custom_id"
+"5431901d-2ae6-43c5-86da-e2ff4e29fa84","","",NULL,NULL,NULL,NULL,"m0vaazab"
+"d9d0abb4-d9fb-491e-a069-5ab467cba3c0","","",NULL,NULL,NULL,NULL,"lieerjyy6l4ykjor"
+"9b34789b-1b81-4947-8580-0202f6f1f9c4","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode() {
+  return {}
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * FLOAT_CD_AB
+ * */
+
+function Decode(option) {
+  const { firmware } = option
+  const profileCustomID = firmware.split('.')[0]
+  option.profileCustomID = profileCustomID
+  return option
+}
+","{}","{}","{
+    ""state"": ""ONLINE"",
+    ""version"": ""ZION_HW_2.0"",
+    ""firmware"": ""ZION_FW_2.1.15"",
+    ""mac"": ""dc4f22997f30""
+}","{
+    ""state"": ""ONLINE"",
+    ""version"": ""ZION_HW_2.0"",
+    ""firmware"": ""ZION_FW_2.1.15"",
+    ""mac"": ""dc4f22997f30"",
+    ""profileCustomID"": ""ZION_FW_2""
+}","ZION_FW_2"
+"1b05699d-a0f9-485f-957b-a6b6b9ccbac4","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    body: {
+      payload
+    }
+    // header: {
+    //   channelNo,
+    //   deviceId,
+    //   messageId,
+    //   messageTime,
+    //   type
+    // }
+  } = option
+
+  /**
+   * default options: {
+   *  object: true, // true 解析为对象, false 解析为 JSON 字符串
+   *  coerce: false // 如果为 true 会强转对象, 比如字符串转数值
+   * }
+   */
+  const {
+    EventNotificationAlert: {
+      peopleCounting: {
+        enter,
+        exit
+      },
+      childCounting: {
+        enter: child_enter,
+        exit: child_exit
+      }
+    }
+  } = T_U_XML_TO_JSON(payload)
+
+  const obj = {
+    enter: Number(enter),
+    exit: Number(exit),
+    child_enter: Number(child_enter),
+    child_exit: Number(child_exit)
+  }
+
+  return {
+    data: obj,
+    status: obj
+  }
+
+
+  // return {
+  //   data: {},
+  //   channelNo,
+  //   deviceId,
+  //   messageId,
+  //   messageTime,
+  //   type,
+  //   EventNotificationAlert
+  // }
+}
+",NULL,NULL,"{
+    ""body"": {
+        ""payload"": ""<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\r\n<EventNotificationAlert version=\""1.0\"" xmlns=\""urn:psialliance-org\"">\r\n<ipAddress>192.168.10.109</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>08:a1:89:d8:13:c5</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-09-08T19:30:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-09-08T19:15:00+08:00</startTime>\r\n<endTime>2021-09-08T19:30:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n""
+    },
+    ""header"": {
+        ""channelNo"": 0,
+        ""deviceId"": ""F84820571"",
+        ""messageId"": ""61389eba49a379002006551b"",
+        ""messageTime"": 1631100602710,
+        ""type"": ""ys.open.isapi""
+    }
+}","{
+    ""data"": {
+        ""enter"": 0,
+        ""exit"": 0,
+        ""child_enter"": 0,
+        ""child_exit"": 0
+    },""status"": {
+        ""enter"": 0,
+        ""exit"": 0,
+        ""child_enter"": 0,
+        ""child_exit"": 0
+    }
+}","DS-2CD6825G0/C-IS"
+"183e9a92-2425-4ac5-9835-b2d8bc083ba3","","",NULL,NULL,NULL,NULL,"7zjewx91"
+"86743039-4c01-4347-ae38-655508753183","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""va_temperature"":
+        const _v = value
+        objstatus['Temperature'] = _v/100
+        objdata['Temperature'] = _v/100
+      break
+      case ""va_humidity"":
+        const _v1 = value
+        objstatus['Humidity'] = _v1/100
+        objdata['Humidity'] = _v1/100
+      break
+      case ""battery_percentage"":
+        const _v2 = value
+        objstatus['Battery_level'] = _v2
+        objdata['Battery_level'] = _v2
+      break
+    }
+  }
+  return { status: objstatus,data: objdata }
+}
+",NULL,NULL,"[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXpFucT004WpapiYs4BMC"",
+        ""devId"": ""eb61ed9df888d3a6cavjwz"",
+        ""productKey"": ""1uxx9cci"",
+        ""status"": [
+          {
+            ""101"": ""6587"",
+            ""code"": ""va_humidity"",
+            ""t"": 1663659458941,
+            ""value"": 6587
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""f3ff7165124d6e6e40752dd033323b2c"",
+      ""t"": 1663659458980
+    },
+    ""messageId"": ""CP2ujBMQmgIYCA=="",
+    ""properties"": {},
+    ""publishTime"": ""2022-09-20T07:37:38.98Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb61ed9df888d3a6cavjwz""
+  }
+]","[
+  {
+    ""status"": {
+      ""Humidity"": 65.87
+    },
+    ""data"": {
+      ""Humidity"": 65.87
+    }
+  }
+]","1uxx9cci"
+"19e4e5d7-0cbe-4660-9bba-aaa1f201603f","","",NULL,NULL,NULL,NULL,"sxkr9j74"
+"39c27ed0-b67e-466a-a85f-4b4292f4370d","","",NULL,NULL,NULL,NULL,"5xuyvahz"
+"77d555ad-12dc-4622-b7c0-d0bc0c710101","","",NULL,NULL,NULL,NULL,"xaabybja"
+"6f99565e-01f7-401f-8791-1744151099bd","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    body: {
+      payload
+    }
+    // header: {
+    //   channelNo,
+    //   deviceId,
+    //   messageId,
+    //   messageTime,
+    //   type
+    // }
+  } = option
+
+  /**
+   * default options: {
+   *  object: true, // true 解析为对象, false 解析为 JSON 字符串
+   *  coerce: false // 如果为 true 会强转对象, 比如字符串转数值
+   * }
+   */
+  const {
+    EventNotificationAlert: {
+      peopleCounting: {
+        enter,
+        exit
+      },
+      childCounting: {
+        enter: child_enter,
+        exit: child_exit
+      }
+    }
+  } = T_U_XML_TO_JSON(payload)
+
+  const obj = {
+    enter: Number(enter),
+    exit: Number(exit),
+    child_enter: Number(child_enter),
+    child_exit: Number(child_exit)
+  }
+
+  return {
+    data: obj,
+    status: obj
+  }
+
+  // return {
+  //   data: {},
+  //   channelNo,
+  //   deviceId,
+  //   messageId,
+  //   messageTime,
+  //   type,
+  //   EventNotificationAlert
+  // }
+}
+",NULL,NULL,"{
+    ""body"": {
+        ""payload"": ""<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\r\n<EventNotificationAlert version=\""1.0\"" xmlns=\""urn:psialliance-org\"">\r\n<ipAddress>192.168.10.109</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>08:a1:89:d8:13:c5</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-09-08T19:30:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-09-08T19:15:00+08:00</startTime>\r\n<endTime>2021-09-08T19:30:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n""
+    },
+    ""header"": {
+        ""channelNo"": 0,
+        ""deviceId"": ""F84820571"",
+        ""messageId"": ""61389eba49a379002006551b"",
+        ""messageTime"": 1631100602710,
+        ""type"": ""ys.open.isapi""
+    }
+}","{
+    ""data"": {
+        ""enter"": 0,
+        ""exit"": 0,
+        ""child_enter"": 0,
+        ""child_exit"": 0
+    },""status"": {
+        ""enter"": 0,
+        ""exit"": 0,
+        ""child_enter"": 0,
+        ""child_exit"": 0
+    }
+}","DS-2CD6825G0-C-IS"
+"26c3ba82-02f1-44ba-872e-8f9bb128833b","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const obj = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""pir"":
+        const _v = value === 'none' ? false : true
+        obj['pir'] = _v
+      break
+    }
+  }
+
+  return { status: obj }
+}
+",NULL,NULL,"{
+  ""payload"": {
+    ""data"": {
+      ""dataId"": ""AAXODSUZ2CPAf9C9AgYQ4AMA"",
+      ""devId"": ""6c0e39f5da2d6c6301rl26"",
+      ""productKey"": ""a8xmaxno"",
+      ""status"": [
+        {
+          ""101"": ""false"",
+          ""code"": ""pir"",
+          ""t"": 1633930735900,
+          ""value"": ""none""
+        }
+      ]
+    },
+    ""protocol"": 4,
+    ""pv"": ""2.0"",
+    ""sign"": ""db698aaa704c7eea7b664105b0aaf55d"",
+    ""t"": 1633930735969
+  },
+  ""messageId"": ""CKXPwBAQLBgKIAA="",
+  ""properties"": {},
+  ""publishTime"": ""2021-10-11T13:38:55.969+08:00"",
+  ""redeliveryCount"": 0,
+  ""key"": ""6c0e39f5da2d6c6301rl26""
+}","{
+    ""status"": {
+        ""pir"":false
+    }
+}","a8xmaxno"
+"1fe70621-98a7-4c88-a8e6-dd63a90a0e42","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const obj = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""switch_1"":
+        const _v = value
+        obj['switch'] = _v
+      break
+    }
+  }
+
+  return { status: obj }
+}
+",NULL,NULL,"[
+    {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXQP8ImkZjrnzdgYYwAAD"",
+        ""devId"": ""6c09793235580d0959kk8i"",
+        ""productKey"": ""phjeraqq"",
+        ""status"": [
+          {
+            ""1"": ""true"",
+            ""code"": ""switch_1"",
+            ""t"": 1636347142377,
+            ""value"": true
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""e75f89ff66fbe32539333f8096845646"",
+      ""t"": 1636347142444
+    },
+    ""messageId"": ""CPey4REQ0gEYBiAA"",
+    ""properties"": {},
+    ""publishTime"": ""2021-11-08T12:52:22.444+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6c09793235580d0959kk8i""
+  }
+]","[
+    {
+        ""status"": {
+            ""switch"":true
+        }
+    }
+]","phjeraqq"
+"0eda42f3-1e89-471e-86ca-d4030afe2bf5","","",NULL,NULL,NULL,NULL,"jrlfbtvfebypwvd9"
+"80eb0adb-0b86-420c-9374-5ddacfe96763","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 1999,
+            ""quantity"": 24,
+            ""rate"": 120000
+        },
+        {
+            ""function"": 3,
+            ""address"": 2023,
+            ""quantity"": 24,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 1999:
+
+      const obj = {
+        kWh1: T_M_FLOAT_AB_CD(data, 0),
+        kWh2: T_M_FLOAT_AB_CD(data, 2),
+        kWh3: T_M_FLOAT_AB_CD(data, 4),
+        kWh4: T_M_FLOAT_AB_CD(data, 6),
+        kWh5: T_M_FLOAT_AB_CD(data, 8),
+        kWh6: T_M_FLOAT_AB_CD(data, 10),
+        kWh7: T_M_FLOAT_AB_CD(data, 12),
+        kWh8: T_M_FLOAT_AB_CD(data, 14),
+        kWh9: T_M_FLOAT_AB_CD(data, 16),
+        kWh10: T_M_FLOAT_AB_CD(data, 18),
+        kWh11: T_M_FLOAT_AB_CD(data, 20),
+        kWh12: T_M_FLOAT_AB_CD(data, 22)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    case 2023:
+
+      const obj2 = {
+        kWh13: T_M_FLOAT_AB_CD(data, 0),
+        kWh14: T_M_FLOAT_AB_CD(data, 2),
+        kWh15: T_M_FLOAT_AB_CD(data, 4),
+        kWh16: T_M_FLOAT_AB_CD(data, 6),
+        kWh17: T_M_FLOAT_AB_CD(data, 8),
+        kWh18: T_M_FLOAT_AB_CD(data, 10),
+        kWh19: T_M_FLOAT_AB_CD(data, 12),
+        kWh20: T_M_FLOAT_AB_CD(data, 14),
+        kWh21: T_M_FLOAT_AB_CD(data, 16),
+        kWh22: T_M_FLOAT_AB_CD(data, 18),
+        kWh23: T_M_FLOAT_AB_CD(data, 20),
+        kWh24: T_M_FLOAT_AB_CD(data, 22)
+      }
+
+      return {
+        data: obj2,
+        status: obj2
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 1999,
+          ""quantity"": 24,
+          ""rate"": 120000
+        },
+        {
+          ""function"": 3,
+          ""address"": 2023,
+          ""quantity"": 24,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","[
+  {
+    ""data"": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    ""address"": 1999,
+    ""quantity"": 24
+  }
+]","[
+  {
+    ""data"": {
+      ""kWh1"": 0,
+      ""kWh2"": 0,
+      ""kWh3"": 0,
+      ""kWh4"": 0,
+      ""kWh5"": 0,
+      ""kWh6"": 0,
+      ""kWh7"": 0,
+      ""kWh8"": 0,
+      ""kWh9"": 0,
+      ""kWh10"": 0,
+      ""kWh11"": 0,
+      ""kWh12"": 0
+    },
+    ""status"": {
+      ""kWh1"": 0,
+      ""kWh2"": 0,
+      ""kWh3"": 0,
+      ""kWh4"": 0,
+      ""kWh5"": 0,
+      ""kWh6"": 0,
+      ""kWh7"": 0,
+      ""kWh8"": 0,
+      ""kWh9"": 0,
+      ""kWh10"": 0,
+      ""kWh11"": 0,
+      ""kWh12"": 0
+    }
+  }
+]","BCPM24"
+"a8825d3d-c4b2-47cd-a652-b54e2d21a10f","","",NULL,NULL,NULL,NULL,"3kk0plv8ym4iy74t"
+"1c081272-608e-401e-9a7a-587c0ee3f6e5","","",NULL,NULL,NULL,NULL,"irv40loxddcygh6g"
+"fceeadd9-48ac-4368-9304-e0a107a704ba","","",NULL,NULL,NULL,NULL,"vrwfzzcr"
+"aeece08a-0d07-443c-8c76-2a686b4732d1","","",NULL,NULL,NULL,NULL,"laonwggm"
+"27884ca6-0b6f-42ae-bd7b-56e2eb7933a9","","",NULL,NULL,NULL,NULL,"3wkqni6o"
+"d0a6cc7a-b327-430b-94d4-e167d46af215","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+          ""function"": 3,
+          ""address"": 38,
+          ""quantity"": 24,
+          ""rate"": 300000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 38:
+
+      const obj = {
+        kWh: T_M_LONG_AB_CD(data, 22),
+        powerFactor: T_M_LONG_AB_CD(data, 0),
+        THD_V_L1: T_M_LONG_AB_CD(data, 10),
+        THD_V_L2: T_M_LONG_AB_CD(data, 12),
+        THD_V_L3: T_M_LONG_AB_CD(data, 14),
+        THD_A_L1: T_M_LONG_AB_CD(data, 16),
+        THD_A_L2: T_M_LONG_AB_CD(data, 18),
+        THD_A_L3: T_M_LONG_AB_CD(data, 20),
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 38,
+          ""quantity"": 24,
+          ""rate"": 300000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ""address"": 38,
+  ""quantity"": 24
+}","{
+    ""data"": {
+        ""kWh"": 65537,
+        ""powerFactor"": 65537,
+        ""THD_V_L1"": 65537,
+        ""THD_V_L2"": 65537,
+        ""THD_V_L3"": 65537,
+        ""THD_A_L1"": 65537,
+        ""THD_A_L2"": 65537,
+        ""THD_A_L3"": 65537
+    },""status"": {
+        ""kWh"": 65537,
+        ""powerFactor"": 65537,
+        ""THD_V_L1"": 65537,
+        ""THD_V_L2"": 65537,
+        ""THD_V_L3"": 65537,
+        ""THD_A_L1"": 65537,
+        ""THD_A_L2"": 65537,
+        ""THD_A_L3"": 65537
+    }
+}","CVM-NRG96"
+"9074caa3-5f11-4e7d-a60b-9e2accb4dd2a","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""voc_value"":
+        const _v = value
+        objstatus['TVOC'] = _v
+        objdata['TVOC'] = _v
+      break
+      case ""temp_current"":
+        const _v1 = value
+        objstatus['Temperature'] = _v1
+        objdata['Temperature'] = _v1
+      break
+      case ""humidity_value"":
+        const _v2 = value
+        objstatus['Humidity'] = _v2
+        objdata['Humidity'] = _v2
+      break
+      case ""co2_value"":
+        const _v3 = value
+        objstatus['CO2'] = _v3
+        objdata['CO2'] = _v3
+      break
+      case ""pm25_value"":
+        const _v4 = value
+        objstatus['PM2_5'] = _v4
+        objdata['PM2_5'] = _v4
+      break
+      case ""ch2o_value"":
+        const _v5 = value
+        objstatus['hcho'] = _v5
+        objdata['hcho'] = _v5
+      break
+    }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+
+
+",NULL,NULL,"[{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""voc_value"",
+            ""code"": ""voc_value"",
+            ""t"": 1638782716898,
+            ""value"": 999
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""temp_current"",
+            ""code"": ""temp_current"",
+            ""t"": 1638782716898,
+            ""value"": 100
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""humidity_value"",
+            ""code"": ""humidity_value"",
+            ""t"": 1638782716898,
+            ""value"": 99
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""co2_value"",
+            ""code"": ""co2_value"",
+            ""t"": 1638782716898,
+            ""value"": 5000
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""pm25_value"",
+            ""code"": ""pm25_value"",
+            ""t"": 1638782716898,
+            ""value"": 999
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdtW0bnP2IRiJYTnvvA"",
+        ""devId"": ""74078041f4cfa2f8d299"",
+        ""productKey"": ""ujwn2gjbdomubm5s"",
+        ""status"": [
+          {
+            ""105"": ""ch2o_value"",
+            ""code"": ""ch2o_value"",
+            ""t"": 1638782716898,
+            ""value"": 250
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""1d548b14e54de39a5d6422b0343b2a9a"",
+      ""t"": 1638782716917
+    },
+    ""messageId"": ""CJGhhBMQ6osCGAUgAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T17:25:16.917+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""74078041f4cfa2f8d299""
+  }]","[
+  {
+    ""status"": {
+      ""TVOC"": 999
+    },
+    ""data"": {
+      ""TVOC"": 999
+    }
+  },
+  {
+    ""status"": {
+      ""Temperature"": 100
+    },
+    ""data"": {
+      ""Temperature"": 100
+    }
+  },
+{
+    ""status"": {
+      ""Humidity"": 99
+    },
+    ""data"": {
+      ""Humidity"": 99
+    }
+  },
+  {
+    ""status"": {
+      ""CO2"": 5000
+    },
+    ""data"": {
+      ""CO2"": 5000
+    }
+  },
+  {
+    ""status"": {
+      ""PM2_5"": 999
+    },
+    ""data"": {
+      ""PM2_5"": 999
+    }
+  },
+  {
+    ""status"": {
+      ""hcho"": 250
+    },
+    ""data"": {
+      ""hcho"": 250
+    }
+  }
+]","ujwn2gjbdomubm5s"
+"510fedcf-ad97-4b4b-b18e-00de339c258f","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 3,
+          ""rate"": 120000
+        }]
+      }
+    }
+}
+","","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 3,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]",NULL,NULL,"Teren PMD100(Offset100)"
+"8166d423-a2f3-4043-b70d-be4bce547a23","","",NULL,NULL,NULL,NULL,"35408116d8bfc0f900c5"
+"09ef4d02-99a2-4ab3-a883-435af7311683","","",NULL,NULL,NULL,NULL,"npczcicekvozwnni"
+"b57fe046-56ff-4e83-8405-7d7742033ac6","","",NULL,NULL,NULL,NULL,"jorlvalcdf5lz6qa"
+"ec774dd7-c3b2-4e57-8da3-9e791a52e7f9","","",NULL,NULL,NULL,NULL,"UC100-device-profile2"
+"e044f6e5-3b76-4a00-aef6-7b5a95b31672","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [
+            {
+                ""function"": 3,
+                ""address"": 240,
+                ""quantity"": 2,
+                ""rate"": 60000
+            }
+        ]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ * 
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 240:
+
+      var flowRate = T_M_FLOAT_CD_AB(data, 0)
+
+      return {
+        data: {
+          flowRate
+        },status: {
+          flowRate
+        }
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 240,
+          ""quantity"": 2,
+          ""rate"": 60000
+        }
+      ]
+    }
+  }
+]","{
+    ""data"": [5250, 17413],
+    ""address"": 240,
+    ""quantity"": 2
+}","{
+    ""data"": {
+        ""flowRate"": 532.3204345703125
+    },""status"": {
+        ""flowRate"": 532.3204345703125
+    }
+}","M001"
+"e4fe5d1c-7da3-4540-b2fb-18ae78772b90","","",NULL,NULL,NULL,NULL,"DS-KH6320-WTE1"
+"93ddcea4-19c3-4386-bd4f-7642ade0b2c1","","",NULL,NULL,NULL,NULL,"vwkjfjb3zulaz3r7"
+"9d4cdbf7-b332-4970-844b-9672f489435f","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 3,
+          ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 0:
+
+      const obg = {
+          pm25: T_M_SIGNED(data, 1) + 10,
+          pm10: T_M_SIGNED(data, 2)
+      }
+
+      return {
+        data: obg,
+        status:obg 
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 3,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 2, 3],
+  ""address"": 0,
+  ""quantity"": 3
+}","{
+    ""data"": {
+        ""pm25"": 12,
+        ""pm10"": 3
+    },""status"": {
+        ""pm25"": 12,
+        ""pm10"": 3
+    }
+}","Teren PMD100(pm25offset 10)"
+"29e39731-d31e-4e32-b244-57ce884dea07","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 2,
+          ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+  switch (address) {
+    case 0:
+      const obj = {
+        vibration: T_M_FLOAT_AB_CD(data, 0)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 2,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [0, 0],
+  ""address"": 0,
+  ""quantity"": 2
+}","{
+    ""data"": {
+        ""vibration"": 0
+    },
+    ""status"": {
+        ""vibration"": 0
+    }
+}","MIC-HZB-B-3-RS"
+"f56dffcb-39c5-407f-ba29-eb133c297a6e","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 20,
+            ""quantity"": 16,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+  switch (address) {
+    case 20:
+      const obj = {
+        co2: T_M_SIGNED(data, 0),
+        co: T_M_SIGNED(data, 3),
+        voc: T_M_SIGNED(data, 4),
+        temperature: T_M_SIGNED(data, 5),
+        humidity: T_M_SIGNED(data, 6)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 20,
+          ""quantity"": 16,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+  ""address"": 20,
+  ""quantity"": 16
+}","{
+    ""data"": {
+        ""co2"": 1,
+        ""co"": 4,
+        ""voc"": 5,
+        ""temperature"": 6,
+        ""humidity"": 7
+    },
+    ""status"": {
+        ""co2"": 1,
+        ""co"": 4,
+        ""voc"": 5,
+        ""temperature"": 6,
+        ""humidity"": 7
+    }
+}","EMR3111010"
+"d5dbdb17-e571-4290-986b-3a5a01c3bb72","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+  const { switch: switch_1 ,port, nodeID, slaveID} = option
+
+  if(switch_1){
+    return {
+      payload: {
+        data: (switch_1 === 'ON' ? [1] : [0]),
+        function: 16,
+        address:0,
+        quantity:1
+      }
+    }
+  }else{
+    return {
+          port,
+          [`slave_${nodeID}`]: {
+            slave_id: slaveID,
+            slave_config: [{
+                ""function"": 3,
+                ""address"": 0,
+                ""quantity"": 2,
+                ""rate"": 5000
+            }]
+          }
+      }
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 0:
+      return {
+        status: {
+          switch: T_M_SIGNED(data, 1)?""ON"":""OFF""
+        }
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""switch"": ""ON""
+  },
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": [
+        1
+      ],
+      ""function"": 16,
+      ""address"": 0,
+      ""quantity"": 1
+    }
+  },
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 2,
+          ""rate"": 5000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 1],
+  ""address"": 0,
+  ""quantity"": 2
+}","{
+    ""status"": {
+        ""switch"": ""ON""
+    }
+}","101B"
+"b09b96bc-0634-4dc8-8d80-28cc215fd16e","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+
+  return { }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""watersensor_state"":
+        const _v = value === '1' ? true : false
+        objstatus['watersensor_state'] = _v
+        objdata['watersensor_state'] = _v
+      break
+      case ""battery_percentage"":
+        const _v1 = value
+        objstatus['battery_percentage'] = _v1
+        objdata['battery_percentage'] = _v1
+      break
+    }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","{}","{}","[{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSIKjADnlzDR2JYXYAxA"",
+        ""devId"": ""6c30b1e01a205abe07ajhp"",
+        ""productKey"": ""ezhgerjm"",
+        ""status"": [
+          {
+            ""4"": ""100"",
+            ""code"": ""battery_percentage"",
+            ""t"": 1638412595498,
+            ""value"": 100
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""01693894f8992c4b1914472b182dd5b8"",
+      ""t"": 1638412595579
+    },
+    ""messageId"": ""CLSv6xIQARgFIAA="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-02T10:36:35.579+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6c30b1e01a205abe07ajhp""
+  },{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSIeJjlyvObeWJYWQABC"",
+        ""devId"": ""6c30b1e01a205abe07ajhp"",
+        ""productKey"": ""ezhgerjm"",
+        ""status"": [
+          {
+            ""1"": ""2"",
+            ""code"": ""watersensor_state"",
+            ""t"": 1638417857484,
+            ""value"": ""2""
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""0f562baf4c05754b9912f2d760b74ca7"",
+      ""t"": 1638417857545
+    },
+    ""messageId"": ""COza7BIQAxgFIAA="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-02T12:04:17.546+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6c30b1e01a205abe07ajhp""
+  }]","[
+  {
+    ""status"": {
+      ""battery_percentage"": 100
+    },
+    ""data"": {
+      ""battery_percentage"": 100
+    }
+  },
+  {
+    ""status"": {
+      ""watersensor_state"": false
+    },
+    ""data"": {
+      ""watersensor_state"": false
+    }
+  }
+]","ezhgerjm"
+"ad30e52a-965a-43b0-b228-0e505faf58a1","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 0,
+            ""quantity"": 30,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+  switch (address) {
+    case 0:
+      const obj = {
+        t1: T_M_FLOAT_AB_CD(data, 6),
+        t2: T_M_FLOAT_AB_CD(data, 8),
+        Mwh: T_M_FLOAT_AB_CD(data, 20)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 30,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+  ""address"": 0,
+  ""quantity"": 30
+}
+","{
+    ""data"": {
+        ""t1"": 6.428596834936531e-40,
+        ""t2"": 8.265334784065642e-40,
+        ""Mwh"": 1.9285762478840306e-39
+    },
+    ""status"": {
+        ""t1"": 6.428596834936531e-40,
+        ""t2"": 8.265334784065642e-40,
+        ""Mwh"": 1.9285762478840306e-39
+    }
+}","KAMSTRUP MUTICAL 603"
+"65494671-3e9e-45a7-994b-20ec29e7074d","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+          ""function"": 3,
+          ""address"": 24,
+          ""quantity"": 10,
+          ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+  switch (address) {
+    case 24:
+      const obj = {
+        co2: T_M_SIGNED(data, 0),
+        pm25: T_M_SIGNED(data, 1),
+        co: T_M_SIGNED(data, 3),
+        voc: T_M_SIGNED(data, 4),
+        temperature: T_M_SIGNED(data, 5),
+        humidity: T_M_SIGNED(data, 6)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 24,
+          ""quantity"": 10,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","{
+  ""data"": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  ""address"": 24,
+  ""quantity"": 10
+}","{
+    ""data"": {
+        ""co2"": 1,
+        ""pm25"": 2,
+        ""co"": 4,
+        ""voc"": 5,
+        ""temperature"": 6,
+        ""humidity"": 7
+    },
+    ""status"": {
+        ""co2"": 1,
+        ""pm25"": 2,
+        ""co"": 4,
+        ""voc"": 5,
+        ""temperature"": 6,
+        ""humidity"": 7
+    }
+}","ECOA EMR6412000"
+"55eeaf9f-35c3-4c37-b3a8-c46858d29b89","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""va_humidity"":
+        const _v = value
+        objstatus['Humidity'] = _v/100
+        objdata['Humidity'] = _v/100
+      break
+      case ""va_temperature"":
+        const _v1 = value
+        objstatus['Temperature'] = _v1/100
+        objdata['Temperature'] = _v1/100
+      break
+      case ""va_battery"":
+        const _v2 = value
+        objstatus['Battery'] = _v2/2.2
+        objdata['Battery'] = _v2/2.2
+      break
+    }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+
+
+",NULL,NULL,"[{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdd80A9Cney5iJYfAB6D"",
+        ""devId"": ""6cac9b2e9581f6bd27iyta"",
+        ""productKey"": ""Bfq2i2Sy"",
+        ""status"": [
+          {
+            ""101"": ""va_humidity"",
+            ""code"": ""va_humidity"",
+            ""t"": 1638778581287,
+            ""value"": 3000
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""81dd98b58a29dabd457573edf59c59c7"",
+      ""t"": 1638778581372
+    },
+    ""messageId"": ""CNaBhBMQURgCIAA="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T16:16:21.372+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6cac9b2e9581f6bd27iyta""
+  },{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdd80A9Cney5iJYfAB6D"",
+        ""devId"": ""6cac9b2e9581f6bd27iyta"",
+        ""productKey"": ""Bfq2i2Sy"",
+        ""status"": [
+          {
+            ""101"": ""va_temperature"",
+            ""code"": ""va_temperature"",
+            ""t"": 1638778581287,
+            ""value"": 2000
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""81dd98b58a29dabd457573edf59c59c7"",
+      ""t"": 1638778581372
+    },
+    ""messageId"": ""CNaBhBMQURgCIAA="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T16:16:21.372+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6cac9b2e9581f6bd27iyta""
+  },{
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXSdd80A9Cney5iJYfAB6D"",
+        ""devId"": ""6cac9b2e9581f6bd27iyta"",
+        ""productKey"": ""Bfq2i2Sy"",
+        ""status"": [
+          {
+            ""101"": ""va_battery"",
+            ""code"": ""va_battery"",
+            ""t"": 1638778581287,
+            ""value"": 2.2
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""81dd98b58a29dabd457573edf59c59c7"",
+      ""t"": 1638778581372
+    },
+    ""messageId"": ""CNaBhBMQURgCIAA="",
+    ""properties"": {},
+    ""publishTime"": ""2021-12-06T16:16:21.372+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""6cac9b2e9581f6bd27iyta""
+  }]","[
+  {
+    ""status"": {
+      ""Humidity"": 30
+    },
+    ""data"": {
+      ""Humidity"": 30
+    }
+  },
+  {
+    ""status"": {
+      ""Temperature"": 20
+    },
+    ""data"": {
+      ""Temperature"": 20
+    }
+  },
+{
+    ""status"": {
+      ""Battery"": 1
+    },
+    ""data"": {
+      ""Battery"": 1
+    }
+  }
+]","Bfq2i2Sy"
+"4eee54f8-a0b0-4743-be32-02adfda1e84a","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const splitTemp = customInfo => {
+    const str = customInfo.split('temp=')[1]
+    return str.replace('C', '') * 1
+  }
+
+  const {
+    body,
+    header: {
+      channelNo,
+      deviceId,
+      messageId,
+      messageTime,
+      type
+    }
+  } = option
+
+  if (type === 'ys.alarm') {
+
+    //温度警报
+
+    const {
+      alarmTime,
+      customInfo,
+      pictureList,
+      alarmType
+    } = body
+
+    if(alarmType === ""hightemperaturepre""){
+      return {
+        data: {
+          alarmMsgData : {
+            temp : splitTemp(customInfo),
+            url : pictureList[0].url,
+            code : T_H_GET_VALIDATE_CODE(deviceId),
+            alarmTime
+          }
+        }
+      }
+    }
+  }else if(type === 'ys.onoffline'){
+    const {
+      msgType
+    } = body
+
+    return {
+      status: {
+        state: msgType
+      }
+    }
+  }
+  
+  return {}
+}",NULL,NULL,"[
+    {
+        ""body"": {
+            ""crypt"": 1,
+            ""alarmTime"": ""2021-08-30T11:12:23"",
+            ""channel"": 2,
+            ""channelType"": 0,
+            ""relationId"": """",
+            ""customInfo"": ""type=1006|preid=0|ruleid=0|temp=37.00C"",
+            ""requestTime"": 1630293149426,
+            ""devSerial"": ""E21300965"",
+            ""alarmType"": ""hightemperaturepre"",
+            ""customType"": ""hightemperaturepre"",
+            ""alarmId"": ""20210830031225-E21300965-2-10091"",
+            ""checksum"": ""bec160913b5c2b6bf2bc57bbd72c245d"",
+            ""channelName"": ""camera2@DS-2TD1217B-6-PA(E21300965)"",
+            ""location"": """",
+            ""describe"": ""hightemperaturepre"",
+            ""pictureList"": [
+                {
+                    ""shortUrl"": ""https://isgp.ezvizlife.com/c/ZSgCtM_e"",
+                    ""id"": ""20210830031225-E21300965-2-10091-2-1"",
+                    ""url"": ""https://isgp.ezvizlife.com/v3/alarms/pic/get?fileId=20210830031225-E21300965-2-10091-2-1&deviceSerialNo=E21300965&cn=2&isEncrypted=1&isCloudStored=0&ct=4&lc=7&bn=4_alialarm-sgp&isDevVideo=0""
+                },
+                {
+                    ""shortUrl"": ""https://isgp.ezvizlife.com/c/ZSgCyw_e"",
+                    ""id"": ""20210830031225-E21300965-2-10091-2-2"",
+                    ""url"": ""https://isgp.ezvizlife.com/v3/alarms/pic/get?fileId=20210830031225-E21300965-2-10091-2-2&deviceSerialNo=E21300965&cn=2&isEncrypted=1&isCloudStored=0&ct=4&lc=7&bn=4_alialarm-sgp&isDevVideo=0""
+                }
+            ],
+            ""status"": 1
+        },
+        ""header"": {
+            ""channelNo"": 2,
+            ""deviceId"": ""E21300965"",
+            ""messageId"": ""612c4c9d49a379002006437a"",
+            ""messageTime"": 1630293149426,
+            ""type"": ""ys.alarm""
+        }
+    },
+    {
+        ""body"": {
+            ""devType"": ""DS-2TD1217B-6/PA"",
+            ""regTime"": ""2021-10-15 07:48:09"",
+            ""natIp"": ""120.229.1.40"",
+            ""msgType"": ""OFFLINE"",
+            ""subSerial"": ""E21300965"",
+            ""occurTime"": ""2021-10-15 07:53:54"",
+            ""deviceName"": ""DS-2TD1217B-6-PA(E21300965)"",
+            ""dasId"": ""das_10.102.28.23_31007_1631894587""
+        },
+        ""header"": {
+            ""channelNo"": 0,
+            ""deviceId"": ""E21300965"",
+            ""messageId"": ""616933926fd6d0001e06ed74"",
+            ""messageTime"": 1634284434828,
+            ""type"": ""ys.onoffline""
+        }
+    }
+]","[
+    {
+        ""data"": {
+            ""alarmMsgData"":{
+                ""temp"": 37.00,
+                ""url"": ""https://isgp.ezvizlife.com/v3/alarms/pic/get?fileId=20210830031225-E21300965-2-10091-2-1&deviceSerialNo=E21300965&cn=2&isEncrypted=1&isCloudStored=0&ct=4&lc=7&bn=4_alialarm-sgp&isDevVideo=0"",
+                ""alarmTime"": ""2021-08-30T11:12:23"",
+                ""code"":""fu2021square""
+            }
+        }
+    },
+    {
+        ""status"":{
+            ""state"":""OFFLINE""
+        }
+    }
+]","DS-2TD1217B-6/PA"
+"5d150d1d-abcb-4986-af54-be59e67f06b6","/*
+ * 编码器 - 1.0.0
+ * 
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 0,
+            ""quantity"": 2,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 0:
+
+      const obj = {
+        flowrate : T_M_FLOAT_CD_AB(data,0)
+      }
+
+      return {
+        data: obj,
+        status: obj
+      }
+
+    default:
+      return { data: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 4
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 2,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 4,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 2,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","[
+  {
+    ""data"": [
+      0,
+      0
+    ],
+    ""address"": 0,
+    ""quantity"": 2
+  }
+]","[
+  {
+    ""data"": {
+      ""flowrate"": 0
+    },
+    ""status"": {
+      ""flowrate"": 0
+    }
+  }
+]","NS-2000B"
+"e7866c87-1b2b-4395-a449-7a03040968b8","","",NULL,NULL,NULL,NULL,"czuyt8lz"
+"01dd451b-3d1c-4f64-ba89-ecd81327ff34","","",NULL,NULL,NULL,NULL,"rmymn92d"
+"7b78ff16-bc6b-4275-b4f0-209a4e3a8de3","/*
+ * 编码器 - 1.0.0
+ * 
+ * */
+
+function Encode(option) {
+  const { port, nodeID, slaveID, mb_vfd_frq } = option
+
+  if( mb_vfd_frq !== undefined) {
+    return {
+      ""payload"":{
+        ""data"":[mb_vfd_frq],
+        ""function"":6,
+        ""address"":0,
+        ""quantity"":1
+      }
+    }
+  }
+
+  return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [
+          {
+            ""function"": 3,
+            ""address"": 10,
+            ""quantity"": 1,
+            ""rate"": 1000
+          }
+        ]
+      }
+  }
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 10:
+
+      const mb_vfd_frq =  T_M_SIGNED(data, 0)
+
+      return {
+        data: {
+          mb_vfd_frq
+        },
+        status: {
+          mb_vfd_frq
+        }
+      }
+    default:
+      return { data: {} ,status: {} }
+  }
+}
+","[
+  {
+    ""mb_vfd_frq"": 20
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": [
+        20
+      ],
+      ""function"": 6,
+      ""address"": 0,
+      ""quantity"": 1
+    }
+  }
+]","[
+  {
+    ""data"": [
+      20
+    ],
+    ""address"": 10,
+    ""quantity"": 1
+  }
+]","[
+  {
+    ""data"": {
+      ""mb_vfd_frq"": 20
+    },
+    ""status"": {
+      ""mb_vfd_frq"": 20
+    }
+  }
+]","Mega_Zion_Modbus"
+"34ebc1ba-7bb9-43a9-acc6-59e570c4b10d","","",NULL,NULL,NULL,NULL,"atezyt7afgfjgv4c"
+"925fecc3-74b7-4093-b457-347e782b409b","","",NULL,NULL,NULL,NULL,"a8sdabtg"
+"82daf548-9450-4ab8-b4ac-02e349df892b","","",NULL,NULL,NULL,NULL,"csunuuaww4prq8rm"
+"72d0574f-62bc-4be4-a667-6aff66a83d1a","","",NULL,NULL,NULL,NULL,"elx81iegjn4rynr3"
+"0395ef5c-57ba-40aa-aa69-1dd9637a515d","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""cur_voltage"":  //当前电压(V)
+        const _cur_voltage = value
+        objstatus['cur_voltage'] = _cur_voltage
+        objdata['cur_voltage'] = _cur_voltage
+      break
+      case ""cur_power"":  //当前功率(W)
+        const _cur_power = value
+        objstatus['cur_power'] = _cur_power
+        objdata['cur_power'] = _cur_power
+      break
+      case ""cur_current"":  //当前电流(mA)
+        const _cur_current = value
+        objstatus['cur_current'] = _cur_current
+        objdata['cur_current'] = _cur_current
+      break
+      case ""add_ele"":  //增加电量(度)
+        const _add_ele = value
+        objstatus['add_ele'] = _add_ele
+        objdata['add_ele'] = _add_ele
+      break
+      case ""switch"":  //开关状态
+        const _switch = value
+        objstatus['switch'] = _switch
+      break
+    }
+  }
+
+   return { status: objstatus,data: objdata }
+}
+",NULL,NULL,"[
+    {
+	""payload"": {
+		""data"": {
+			""dataId"": ""AAXYhU1bOBHc8JHdYSUAUC"",
+			""devId"": ""35408116d8bfc0f900c5"",
+			""productKey"": ""i0pbfhj3esvq8wsj"",
+			""status"": [{
+				""6"": ""2308"",
+				""code"": ""cur_voltage"",
+				""t"": 1645441923627,
+				""value"": 2308
+			}]
+		},
+		""protocol"": 4,
+		""pv"": ""2.0"",
+		""sign"": ""ebdfe4cbb1f9bf653201dd1f5b51275b"",
+		""t"": 1645441923759
+	},
+	""messageId"": ""CK7m1xYQUxgHIAA="",
+	""properties"": {},
+	""publishTime"": ""2022-02-21T19:12:03.759+08:00"",
+	""redeliveryCount"": 0,
+	""key"": ""35408116d8bfc0f900c5""
+}
+]","[
+  {
+    ""status"": {
+      ""cur_voltage"": 2308
+    },
+    ""data"": {
+      ""cur_voltage"": 2308
+    }
+  }
+]","i0pbfhj3esvq8wsj"
+"10f2c3b6-fec3-4682-a078-b91cf4233355","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  return {}
+}
+",NULL,NULL,"[
+  {}
+]","[
+  {}
+]","mega-tereo-mail-01"
+"65de5171-7aed-4cd8-ae10-f01e9d01ed46","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  return {}
+}
+",NULL,NULL,"[
+  {}
+]","[
+  {}
+]","mega-tereo-lift-01"
+"c38b9d00-4021-4cc8-a642-6eeb687d13db","","",NULL,NULL,NULL,NULL,"lupfd8zu"
+"ccff2837-bdb9-4ae7-996d-30e58ff95e78","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""bright_value"":  //开关状态 {true,false}
+          const _bright_value = value
+          objstatus['t_bright_value'] = _bright_value
+          objdata['t_bright_value'] = _bright_value
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+",NULL,NULL,"[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXvPOJ5azdVULtnYr4ACC"",
+        ""devId"": ""eb19d590c2cf36c3b2maja"",
+        ""productKey"": ""ak3o5y0arvek1b0m"",
+        ""status"": [
+          {
+            ""22"": ""248"",
+            ""code"": ""bright_value"",
+            ""t"": 1670419660237,
+            ""value"": 248
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""373b1d3f4a7aec30dcd349ae32f6f7a3"",
+      ""t"": 1670419660330
+    },
+    ""messageId"": ""CICw8hUQkwIYBA=="",
+    ""properties"": {},
+    ""publishTime"": ""2022-12-07T13:27:40.33Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb19d590c2cf36c3b2maja""
+  }
+]","[
+  {
+    ""status"": {
+      ""t_bright_value"": 248
+    },
+    ""data"": {
+      ""t_bright_value"": 248
+    }
+  }
+]","ak3o5y0arvek1b0m"
+"0054493d-96c6-4461-ba2c-4994f3722100","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  return {}
+}
+",NULL,NULL,"[
+  {}
+]","[
+  {}
+]","mega-tereo-liftcall-01"
+"df99bf99-46bc-44b8-8d6e-e87b76616eb2","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  return {}
+}
+",NULL,NULL,"[
+  {}
+]","[
+  {}
+]","mega-tereo-door-01"
+"893079a3-a65f-4430-8682-eb52ae36c594","","",NULL,NULL,NULL,NULL,"z4xgdnur"
+"52cdda7b-26ce-4784-a936-96d6e22b6e63","","",NULL,NULL,NULL,NULL,"dinirh49grpg58x8"
+"a0e5f5c7-89da-4828-9e6d-a0f594ddeb5a","","",NULL,NULL,NULL,NULL,"xqcq3p3x"
+"af111a3b-ae20-49d9-a0d8-4ed50da6f39d","","",NULL,NULL,NULL,NULL,"9avtbwr5"
+"1036b319-ce61-43ff-8b72-ad7c316a4fcd","","",NULL,NULL,NULL,NULL,"c84rbbjr"
+"52bdcf21-59dc-4643-a47e-22e5505b2a6e","","",NULL,NULL,NULL,NULL,"x3z9eet0"
+"eae1b051-9a26-43f6-a6f0-29e760c58aaa","","",NULL,NULL,NULL,NULL,"v3nrt518kmnmo9ha"
+"0989b554-a1c1-452d-bde9-6a984b3c0589","/*
+ * @ Connor
+ *
+ * @ 2022-10-09
+ * */
+
+function Encode(option) {
+  const { port, nodeID, slaveID, mb_vfd_frq } = option
+
+  if( mb_vfd_frq !== undefined) {
+    return {
+      ""payload"":{
+        ""data"":[400*mb_vfd_frq],
+        ""function"":16,
+        ""address"":1,
+        ""quantity"":1
+      }
+    }
+  }
+
+  return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [
+          {
+            ""function"": 3,
+            ""address"": 100,
+            ""quantity"": 20,
+            ""rate"": 10000
+          }
+        ]
+      }
+  }
+}
+","/*
+ * @ Connor
+ *
+ * @ 2022-10-09
+ * */
+ 
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 100:
+
+      const mb_vfd_frq =  T_M_SIGNED(data, 2)
+      const mb_vfd_kw =  T_M_SIGNED(data, 5)
+      const mb_vfd_kwh =  T_M_SIGNED(data, 14)
+
+      return {
+        data: {
+          mb_vfd_frq,
+          mb_vfd_kw,
+          mb_vfd_kwh
+        },
+        status: {
+          mb_vfd_frq,
+          mb_vfd_kw,
+          mb_vfd_kwh
+        }
+      }
+    default:
+      return { data: {} ,status: {} }
+  }
+}
+","[
+  {
+    ""mb_vfd_frq"": 45
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": [
+        18000
+      ],
+      ""function"": 16,
+      ""address"": 1,
+      ""quantity"": 1
+    }
+  }
+]","[
+  {
+    ""data"": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    ""address"": 100,
+    ""quantity"": 20
+  }
+]","[
+  {
+    ""data"": {
+      ""mb_vfd_frq"": 1,
+      ""mb_vfd_kw"": 1,
+      ""mb_vfd_kwh"": 0
+    },
+    ""status"": {
+      ""mb_vfd_frq"": 1,
+      ""mb_vfd_kw"": 1,
+      ""mb_vfd_kwh"": 0
+    }
+  }
+]","ACS510"
+"c5f8c1cb-35c9-4a26-a482-393320385ac4","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const data = option.map(({ time, p4Kwh, p4_pm181_kva }) => ({ time, p4Kwh, p4Kva: p4_pm181_kva }))
+
+  return {
+    status: data[0],
+    data
+  }
+}
+",NULL,NULL,"[
+  [
+    {
+      ""time"": ""2022-12-31T18:30:00.000Z"",
+      ""p4Kwh"": 16,
+      ""p4_pm181_kva"": 18
+    }
+  ]
+]","[
+  {
+    ""status"": {
+      ""time"": ""2022-12-31T18:30:00.000Z"",
+      ""p4Kwh"": 16,
+      ""p4Kva"": 18
+    },
+    ""data"": [
+      {
+        ""time"": ""2022-12-31T18:30:00.000Z"",
+        ""p4Kwh"": 16,
+        ""p4Kva"": 18
+      }
+    ]
+  }
+]","DS000001"
+"074676af-8769-4b0f-bc84-91a0d7f766bd","","",NULL,NULL,NULL,NULL,"wnpj04x0xegokxf4"
+"13469b96-3472-47ef-a72d-b9f836d999bd","","",NULL,NULL,NULL,NULL,"zdrhqmo0"
+"c5d4866e-de97-495b-9225-4debf666ea2b","","",NULL,NULL,NULL,NULL,"wunufsil"
+"2a9017e5-bfc4-4ed4-8bcc-b0097c89dc69","","",NULL,NULL,NULL,NULL,"rrwmfapk35anftnc"
+"4271e848-eb32-41ee-9914-ab9eb3cd5be3","","",NULL,NULL,NULL,NULL,"i8wnivolfgjzojbt"
+"c2d56dc8-13a1-4e2f-ab1e-a6dd88209460","","",NULL,NULL,NULL,NULL,"qm0iq4nqnrlzh4qc"
+"e86231c1-37d1-4c4b-afc5-277fe7d9221f","","",NULL,NULL,NULL,NULL,"Gb0Y1YlEoDyDSqXh"
+"b9a3e0a6-85c1-41b5-af9a-ff78cd0c3c52","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const data = option.map(({ time, PM_kWh, PM_kVA }) => ({ time, PM_kWh, PM_kVA }))
+
+  return {
+    status: data[0],
+    data
+  }
+}
+",NULL,NULL,"[
+  [
+    {
+      ""time"": ""2022-12-31T18:30:00.000Z"",
+      ""PM_kWh"": 16,
+      ""PM_kVA"": 18
+    }
+  ]
+]","[
+  {
+    ""status"": {
+      ""time"": ""2022-12-31T18:30:00.000Z"",
+      ""PM_kWh"": 16,
+      ""PM_kVA"": 18
+    },
+    ""data"": [
+      {
+        ""time"": ""2022-12-31T18:30:00.000Z"",
+        ""PM_kWh"": 16,
+        ""PM_kVA"": 18
+      }
+    ]
+  }
+]","PM-kWh"
+"9610d33c-bd34-424c-b45b-d605e2399ed0","","",NULL,NULL,NULL,NULL,"v86qvet9yi31gh0a"
+"a7a02159-a78a-42d8-92f6-15a945d3405b","","",NULL,NULL,NULL,NULL,"Dragino-LHT52-device-profile"
+"817b0325-6aad-4f04-9d12-a529ef1e1f2b","","",NULL,NULL,NULL,NULL,"z7bvbla0ritruckp"
+"33ecc700-54f3-4d15-a320-78ad7059d72e","","",NULL,NULL,NULL,NULL,"3derx67tpc3xw4wg"
+"fb246d73-428f-4245-b219-6c77b80420ba","","",NULL,NULL,NULL,NULL,"MIC-HZB-B-3-RS-Device-profile"
+"dbb3f97b-3136-4d1a-b76f-c99b69e7e743","","",NULL,NULL,NULL,NULL,"Netvox-R311K-Device-Profile"
+"fc581eb1-be16-40df-a9bc-51d51fa1f484","","",NULL,NULL,NULL,NULL,"Netvox-R718X-Device-Profile"
+"4a0676bf-fc7b-4283-9912-c060c591b14a","","",NULL,NULL,NULL,NULL,"Netvox-R720B-Device-Profile"
+"56020eaf-db5d-4b74-8cfa-2e3ae02788d4","","",NULL,NULL,NULL,NULL,"UC1152-device-profile"
+"bee37643-eeb9-4b65-9ea1-af272b9cb9a5","","",NULL,NULL,NULL,NULL,"UC502-Device-Profile"
+"0804f088-a914-4082-bc1b-af6da2a67ff2","","",NULL,NULL,NULL,NULL,"current-meter-device-profile"
+"0598c8ce-480f-498f-b0f8-521676e38d0c","","",NULL,NULL,NULL,NULL,"AM107-915M"
+"97f6b15c-fa11-4a36-8901-800ae4de49b1","","",NULL,NULL,NULL,NULL,"lora-controller-DZS900-device-profile"
+"ec241747-333f-4cef-bed6-fbb1419b98c0","","",NULL,NULL,NULL,NULL,"senso8-iaq-device-profile"
+"c6d639f2-9084-418c-8bc0-4cd0799130ed","","",NULL,NULL,NULL,NULL,"PMC-350-CSCCT525NN6E"
+"bacad417-849a-4fb8-a0fc-b930de89904e","","",NULL,NULL,NULL,NULL,"PMC-350-CSCCT525NN6E2"
+"66096f86-2fc9-4ec3-980c-efb38a44073e","","",NULL,NULL,NULL,NULL,"UC100-device-profile"
+"8c01ed96-2dcf-4fa8-940c-814be4ef86f8","","",NULL,NULL,NULL,NULL,"AM319-device-profile"
+"a2f69c3c-ec7d-46d8-821e-be6dac939400","/*
+ * @ Connor
+ *
+ * @ 2023-07-12
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 10,
+            ""quantity"": 6,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * @ Connor
+ *
+ * @ 2023-07-12
+ * */
+ 
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 10:
+
+      const mb_c2h2 =  T_M_SIGNED(data, 1)
+      const mb_co =  T_M_SIGNED(data, 4)
+
+      return {
+        data: {
+          mb_c2h2,
+          mb_co
+        },
+        status: {
+          mb_c2h2,
+          mb_co
+        }
+      }
+    default:
+      return { data: {} ,status: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 1
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 1,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 10,
+          ""quantity"": 6,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","[
+  {
+    ""data"": [
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    ""address"": 10,
+    ""quantity"": 6
+  }
+]","[
+  {
+    ""data"": {
+      ""mb_c2h2"": 1,
+      ""mb_co"": 1
+    },
+    ""status"": {
+      ""mb_c2h2"": 1,
+      ""mb_co"": 1
+    }
+  }
+]","JB-TB-CK200"
+"b94a7ae6-1dba-4fca-96cc-71f31bda088c","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+    const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+    for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""pm25_value"":  //PM2.5检测值	
+          objstatus['pm25'] = value
+          objdata['pm25'] = value
+        break
+        case ""alarm_bright"":  //光亮度调节
+          objstatus['alarm_bright'] = value
+        break
+        case ""temp_current"":  //当前温度
+          objstatus['temp_current'] = value/10
+          objdata['temp_current'] = value/10
+        break
+        case ""humidity_value"":  //湿度数值 
+          objstatus['humidity'] = value
+          objdata['humidity'] = value
+        break
+        case ""ch2o_value"":  //甲醛检测值
+          objstatus['ch2o'] = value
+          objdata['ch2o'] = value
+        break
+        case ""voc_value"": //VOC检测值
+          objstatus['voc'] = value
+          objdata['voc'] = value
+        break
+        case ""air_quality"":  //空气质量
+          objstatus['air_quality'] = airMapping[value];
+          objdata['air_quality'] = airMapping[value];
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+
+const airMapping = {
+  ""good"": 1,
+  ""medium"": 2,
+  ""bad"": 3
+}",NULL,NULL,"[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAX9CFjfEWNnJ0a3hnFEBiA"",
+        ""devId"": ""eb99b8ffe1f39b0adfuqe2"",
+        ""productKey"": ""7byoht5a11yccxwh"",
+        ""status"": [
+          {
+            ""20"": ""26"",
+            ""code"": ""ch2o_value"",
+            ""t"": 1687845773531,
+            ""value"": 26
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""3d8e9a75a4de88e764c2ab70b9f8bde4"",
+      ""t"": 1687845773799
+    },
+    ""messageId"": ""CLzM7B0QkPcCGAE="",
+    ""properties"": {},
+    ""publishTime"": ""2023-06-27T06:02:53.799Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb99b8ffe1f39b0adfuqe2""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAX9CFjfEWNnJ0a3hnFEBiA"",
+        ""devId"": ""eb99b8ffe1f39b0adfuqe2"",
+        ""productKey"": ""7byoht5a11yccxwh"",
+        ""status"": [
+          {
+            ""20"": ""26"",
+            ""code"": ""air_quality"",
+            ""t"": 1687845773531,
+            ""value"": ""good""
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""3d8e9a75a4de88e764c2ab70b9f8bde4"",
+      ""t"": 1687845773799
+    },
+    ""messageId"": ""CLzM7B0QkPcCGAE="",
+    ""properties"": {},
+    ""publishTime"": ""2023-06-27T06:02:53.799Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb99b8ffe1f39b0adfuqe2""
+  }
+]","[
+  {
+    ""status"": {
+      ""ch2o"": 26
+    },
+    ""data"": {
+      ""ch2o"": 26
+    }
+  },
+  {
+    ""status"": {
+      ""air_quality"": 1
+    },
+    ""data"": {
+      ""air_quality"": 1
+    }
+  }
+]","7byoht5a11yccxwh"
+"c485afb5-bb3d-4c81-8f8f-758e17e8b30d","/*
+ * 编码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Encode(option) {
+
+  const payload = []
+
+  const {tuya_mode, tuya_level, tuya_switch, tuya_temp_set} = option
+  if (tuya_mode) {
+    payload.push({
+      ""code"": ""mode"",
+      ""value"": tuya_mode
+    })
+  }
+  if (tuya_level) {
+    payload.push({
+      ""code"": ""level"",
+      ""value"": tuya_level
+    })
+  }
+  if (option.hasOwnProperty('tuya_switch')) {
+    payload.push({
+      ""code"": ""switch"",
+      ""value"": tuya_switch
+    })
+  }
+  if (tuya_temp_set) {
+    payload.push({
+      ""code"": ""temp_set"",
+      ""value"": tuya_temp_set
+    })
+  }
+
+  return {
+    payload: payload
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""switch"":  //开关状态 {true,false}
+          const _switch = value
+          objstatus['tuya_switch'] = _switch
+        break
+        case ""mode"":  //工作模式 
+          const _mode = value
+          objstatus['tuya_mode'] = _mode
+        break
+        case ""temp_set"":  //温度设置	 
+          const _temp_set = value
+          objstatus['tuya_temp_set'] = _temp_set
+          objdata['tuya_temp_set'] = _temp_set
+        break
+        case ""temp_current"":  //当前温度	 
+          const _temp_current = value/10
+          objstatus['tuya_temp_current'] = _temp_current
+          objdata['tuya_temp_current'] = _temp_current
+        break
+        case ""level"":  //风速档位	 
+          const _level = value
+          objstatus['tuya_level'] = _level
+        break
+        case ""child_lock"":  //童锁	 
+          const _child_lock = value
+          objstatus['tuya_child_lock'] = _child_lock
+        break
+        case ""backlight"":  //背光亮度	 
+          const _backlight = value
+          objstatus['tuya_backlight'] = _backlight
+        break
+        case ""fault"":  //故障告警	 
+          const _fault = value
+          objstatus['tuya_fault'] = _fault
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""tuya_mode"": ""wind"",
+    ""tuya_switch"": false
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""code"": ""mode"",
+        ""value"": ""wind""
+      },
+      {
+        ""code"": ""switch"",
+        ""value"": false
+      }
+    ]
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""235"",
+            ""code"": ""temp_current"",
+            ""t"": 1645443640019,
+            ""value"": 235
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""tuya_temp_current"": 23.5
+    },
+    ""data"": {
+      ""tuya_temp_current"": 23.5
+    }
+  }
+]","jlxzhgavdanrg2ie"
+"8301e5ea-3812-4a4b-9e48-ef9155fb274f","","",NULL,NULL,NULL,NULL,"oefef8lmzww3i91f"
+"33d5a0e0-a102-415f-9807-0f344122426a","","",NULL,NULL,NULL,NULL,"cgaa8aajm0m2dbvl"
+"cc60409d-e2bd-4836-8188-33e7099b67a0","/*
+ * 编码器 - 1.0.0
+ * 
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Encode(option) {
+  const { switch: sw ,switch_1 ,switch_2,switch_3 } = option
+  
+  const payload = {}
+  if (sw !== undefined){
+    payload[""switch""] = sw
+  } else if (switch_1 !== undefined){
+    payload[""switch_1""] = switch_1
+  } else if (switch_2 !== undefined){
+    payload[""switch_2""] = switch_2
+  }else if (switch_3 !== undefined){
+    payload[""switch_3""] = switch_3
+  }
+
+  return {
+    payload
+  }
+
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+   for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""forward_energy_total"":  //总用电量
+          const _forward_energy_total = value
+          objstatus['forward_energy_total'] = _forward_energy_total
+          objdata['forward_energy_total'] = _forward_energy_total
+        break
+        case ""total_energy_a"":  //A相用电
+          const _total_energy_a = value
+          objstatus['total_energy_a'] = _total_energy_a
+          objdata['total_energy_a'] = _total_energy_a
+        break
+        case ""total_energy_b"":  //B相用电	 
+          const _total_energy_b = value
+          objstatus['total_energy_b'] = _total_energy_b
+          objdata['total_energy_b'] = _total_energy_b
+        break
+        case ""total_energy_c"":  //C相用电	 
+          const _total_energy_c = value
+          objstatus['total_energy_c'] = _total_energy_c
+          objdata['total_energy_c'] = _total_energy_c
+        break
+        case ""switch"":  //总开关	 
+          const _switch = value
+          objstatus['switch'] = _switch
+        break
+        case ""switch_1"":  //A相开关	 
+          const _switch_1 = value
+          objstatus['switch_1'] = _switch_1
+        break
+        case ""switch_2"":  //B相开关	 
+          const _switch_2 = value
+          objstatus['switch_2'] = _switch_2
+        break
+        case ""switch_3"":  //C相开关	 
+          const _switch_3 = value
+          objstatus['switch_3'] = _switch_3
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""switch"": true
+  }
+]","[
+  {
+    ""payload"": {
+      ""switch"": true
+    }
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""235"",
+            ""code"": ""forward_energy_total"",
+            ""t"": 1645443640019,
+            ""value"": 235
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""forward_energy_total"": 235
+    },
+    ""data"": {
+      ""forward_energy_total"": 235
+    }
+  }
+]","ixpmrex6"
+"543b7019-93a6-4206-aed6-157013b3af9e","","",NULL,NULL,NULL,NULL,"wkmsnr09"
+"0bb8c098-a44f-4643-8978-79db72e8d42f","","",NULL,NULL,NULL,NULL,"5k5vh43t"
+"73376939-4ea8-4c44-863d-0830e47a081b","","",NULL,NULL,NULL,NULL,"ywbltqzw"
+"99619472-86a0-4ab8-a5a0-49586fe661e4","","",NULL,NULL,NULL,NULL,"ucsor5neklusd1in"
+"17d8d81e-fcb5-4577-82b5-2385974a2ffa","","",NULL,NULL,NULL,NULL,"t4emstunf5qhishf"
+"2442cf7c-2e00-4139-8cd4-1510e2139df3","","",NULL,NULL,NULL,NULL,"DS-2CD6825G0/C-I"
+"bf0df0ee-af68-4076-8b74-5b7d09139cbd","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""va_temperature"":
+        const _v = value
+        objstatus['Temperature'] = _v/100
+        objdata['Temperature'] = _v/100
+      break
+      case ""va_humidity"":
+        const _v1 = value
+        objstatus['Humidity'] = _v1/100
+        objdata['Humidity'] = _v1/100
+      break
+      case ""battery_percentage"":
+        const _v2 = value
+        objstatus['battery_level'] = _v2
+        objdata['battery_level'] = _v2
+      break
+    }
+  }
+  return { status: objstatus,data: objdata }
+}
+",NULL,NULL,"[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXleOikWmJIoNxnYiUB9AC"",
+        ""devId"": ""eb5b6454cf2af0c8e60aum"",
+        ""productKey"": ""yx1cf5ka"",
+        ""status"": [
+          {
+            ""101"": ""5956"",
+            ""code"": ""va_humidity"",
+            ""t"": 1659682345474,
+            ""value"": 5956
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""f0ef36c035f0fc1cc03efcec72cc0f31"",
+      ""t"": 1659682345527
+    },
+    ""messageId"": ""CPDYxhEQEBgF"",
+    ""properties"": {},
+    ""publishTime"": ""2022-08-05T06:52:25.527Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb5b6454cf2af0c8e60aum"",
+    ""status"": {},
+    ""data"": {},
+    ""time"": ""2022-08-05 14:52:25""
+  }
+]","[
+  {
+    ""status"": {
+      ""Humidity"": 59.56
+    },
+    ""data"": {
+      ""Humidity"": 59.56
+    }
+  }
+]","yx1cf5ka"
+"631140b4-d2f0-4d6d-b5b5-aa59bf68447a","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+  
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+      case ""va_temperature"":
+        const _v = value
+        objstatus['Temperature'] = _v/10
+        objdata['Temperature'] = _v/10
+      break
+      case ""va_humidity"":
+        const _v1 = value
+        objstatus['Humidity'] = _v1/10
+        objdata['Humidity'] = _v1/10
+      break
+      case ""battery_percentage"":
+        const _v2 = value
+        objstatus['battery_level'] = _v2
+        objdata['battery_level'] = _v2
+      break
+    }
+  }
+  return { status: objstatus,data: objdata }
+}
+
+
+",NULL,NULL,"[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXkwU5x9C8qbxhmUYngAIC"",
+        ""devId"": ""ebbcda0b6522322e00guaq"",
+        ""productKey"": ""dowj6gyi"",
+        ""status"": [
+          {
+            ""1"": ""301"",
+            ""code"": ""va_temperature"",
+            ""t"": 1658893779468,
+            ""value"": 301
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""535f65bcaa47a8a1578c92d3f7f8474c"",
+      ""t"": 1658893779517
+    },
+    ""messageId"": ""CPLaoBEQLxgA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-07-27T03:49:39.517Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""ebbcda0b6522322e00guaq""
+  },
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""000601FC75292BE861644FEC7B35221C"",
+        ""devId"": ""eb554d0276f986e6a2lmtm"",
+        ""productKey"": ""dowj6gyi"",
+        ""status"": [
+          {
+            ""2"": ""779"",
+            ""code"": ""va_humidity"",
+            ""t"": 1691033669284,
+            ""value"": 779
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""287c6621b709926d481e6a56d86826a8"",
+      ""t"": 1691033669421
+    },
+    ""messageId"": ""CMqQsh8QpUgYAA=="",
+    ""properties"": {},
+    ""publishTime"": ""2023-08-03T03:34:29.421Z"",
+    ""redeliveryCount"": 0,
+    ""key"": ""eb554d0276f986e6a2lmtm""
+  }
+]","[
+  {
+    ""status"": {
+      ""Temperature"": 30.1
+    },
+    ""data"": {
+      ""Temperature"": 30.1
+    }
+  },
+  {
+    ""status"": {
+      ""Humidity"": 77.9
+    },
+    ""data"": {
+      ""Humidity"": 77.9
+    }
+  }
+]","dowj6gyi"
+"fbf72ec0-081e-4320-8edf-71387cb431ba","/*
+ * 编码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+function arrToBase64(arr) {
+  const b = String.fromCharCode(...arr)
+  return btoa(b)
+}
+
+//1制冷<cold|cool>
+//2加热<hot,heat>
+//4 除湿<dry>
+//8通风<wind,fan>
+const lora_mode_set = {
+  cold: 1,
+  cool: 1,
+  hot: 2,
+  heat: 2,
+  dry: 4,
+  wind: 8,
+  fan: 8
+}
+
+/**
+ * 1高速,2中速,4低速,8自动
+ */
+const lora_fan_speed_set = {
+  high: 1,
+  middle: 2,
+  low: 4,
+  auto: 8
+}
+
+function Encode(option) {
+  const cmd_array = [0xfa, 4, 0, 0];
+  let [...new_cmd_array] = cmd_array
+  const payload = []
+
+  const cmd = option.cmd;
+
+  //const status = option.status;
+  const status = T_A_GET_STATUS();
+  let lora_mode = """"
+  if (cmd.lora_mode) {
+    lora_mode = cmd.lora_mode
+  } else {
+    lora_mode = status.lora_mode
+  }
+  let mode = lora_mode_set[lora_mode];
+  // if(mode != '01' || mode != '02' )
+  // mode = '01';
+
+  if (cmd && cmd.hasOwnProperty('lora_switch')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 3;
+    new_cmd_array[3] = cmd.lora_switch == true || cmd.lora_switch == 'true' ? 2 : 0;
+    payload.push({
+      fPort: 1,
+      commands: {
+        data: arrToBase64(new_cmd_array),
+      }
+    })
+  }
+
+  if (cmd && cmd.hasOwnProperty('lora_mode')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 5;
+    new_cmd_array[3] = lora_mode_set[cmd.lora_mode];
+    payload.push({
+      fPort: 2,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_fan_speed')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 6;
+    new_cmd_array[3] = mode;
+    new_cmd_array.push(lora_fan_speed_set[cmd.lora_fan_speed])
+    payload.push({
+      fPort: 3,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_set_temp')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 7;
+    new_cmd_array[3] = mode;
+    new_cmd_array.push(cmd.lora_set_temp)
+    payload.push({
+      fPort: 4,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_temp_current')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 8;
+    new_cmd_array[3] = Math.floor(cmd.lora_temp_current);
+    new_cmd_array.push((cmd.lora_temp_current - Math.floor(cmd.lora_temp_current)) * 10)
+    payload.push({
+      fPort: 5,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  return {
+    payload: payload
+  }
+}
+","  
+function Decode(option) {
+  const [data_0,data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8] = base64ToArr(option.data);
+
+  const objstatus = {}
+  const objdata = {}
+  
+  if (data_0 === 202 && data_1 === 2) {
+
+    objdata['lora_set_temp'] = data_8;
+    objdata['lora_temp_current'] = data_7;
+
+    objstatus['lora_set_temp'] = data_8;
+    objstatus['lora_temp_current'] = data_7;
+    objstatus['lora_switch'] = !!data_4;
+    objstatus['lora_mode'] = modeMapping[data_5];
+    objstatus['lora_fan_speed'] = fanSpeedMapping[data_6];
+    
+  }else if(data_0 === 251 && data_1 === 4){
+      switch(data_2){
+        case 3: // 开关
+          objstatus['lora_switch'] = !!data_3;
+        break
+        case 5: //模式：01 制冷、02 加热、04 除湿、08 通风
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+        case 6: //风速：(01 高速、02 中速、04 低速、08 自动
+          objstatus['lora_fan_speed'] = fanSpeedMapping[data_4];
+
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+        case 7: //温度设定
+          objstatus['lora_set_temp'] = data_4;
+          objdata['lora_set_temp'] = data_4;
+
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+      }
+  }
+  return { status: objstatus,data: objdata }
+}
+
+const modeMapping = {
+  1: ""cool"",
+  2: ""heat"",
+  4: ""dry"",
+  8: ""fan""
+}
+
+const fanSpeedMapping = {
+  1: ""high"",
+  2: ""middle"",
+  4: ""low"",
+  8: ""auto""
+}
+function base64ToArr(str) {
+  const raw = atob(str)
+
+  const arr = []
+  for (let i = 0, len = raw.length; i < len; i++) {
+    arr.push(raw.charCodeAt(i))
+  }
+
+  return arr
+}","[
+  {
+    ""cmd"": {
+      ""lora_switch"": true,
+      ""lora_mode"": ""cold"",
+      ""lora_fan_speed"": ""high""
+    },
+    ""status"": {
+      ""lora_switch"": true,
+      ""lora_mode"": ""cool"",
+      ""lora_fan_speed"": ""low"",
+      ""lora_temp_current"": 24,
+      ""lora_set_temp"": 19
+    }
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""fPort"": 1,
+        ""commands"": {
+          ""data"": ""+gQDAg==""
+        }
+      },
+      {
+        ""fPort"": 2,
+        ""commands"": {
+          ""data"": ""+gQFAQ==""
+        }
+      },
+      {
+        ""fPort"": 3,
+        ""commands"": {
+          ""data"": ""+gQGAQE=""
+        }
+      }
+    ]
+  }
+]","[
+  {
+    ""applicationID"": ""16"",
+    ""applicationName"": ""test_yin"",
+    ""deviceName"": ""test_yin"",
+    ""devEUI"": ""ca10010aca10010a"",
+    ""rxInfo"": [
+      {
+        ""gatewayID"": ""a840411eeda44150"",
+        ""uplinkID"": ""cc8628df-7c95-4251-84eb-e294a8ffdd10"",
+        ""name"": ""fusquare-dragino-gw"",
+        ""time"": ""2023-04-20T03:26:45.893864Z"",
+        ""rssi"": -72,
+        ""loRaSNR"": 9.8,
+        ""location"": {
+          ""latitude"": 0,
+          ""longitude"": 0,
+          ""altitude"": 0
+        }
+      }
+    ],
+    ""txInfo"": {
+      ""frequency"": 923400000,
+      ""dr"": 2
+    },
+    ""adr"": false,
+    ""fCnt"": 3,
+    ""fPort"": 5,
+    ""data"": ""ygIAAAEBBBgTFUE=""
+  }
+]","[
+  {
+    ""status"": {
+      ""lora_set_temp"": 19,
+      ""lora_temp_current"": 24,
+      ""lora_switch"": true,
+      ""lora_mode"": ""cool"",
+      ""lora_fan_speed"": ""low""
+    },
+    ""data"": {
+      ""lora_set_temp"": 19,
+      ""lora_temp_current"": 24
+    }
+  }
+]","Thermostat-device-profile"
+"8c9a2789-2b41-4869-acb8-f18025b336dd","/*
+ * bijun kelong
+ * */
+
+function Encode(option) {
+
+  const payload = []
+
+  const {switch_1, switch_2, relay_status, light_mode} = option
+  if (option.hasOwnProperty('switch_1')) {
+    payload.push({
+      ""code"": ""switch_1"",
+      ""value"": switch_1
+    })
+  }
+  if (option.hasOwnProperty('switch_2')) {
+    payload.push({
+      ""code"": ""switch_2"",
+      ""value"": switch_2
+    })
+  }
+  if (relay_status) {
+    payload.push({
+      ""code"": ""relay_status"",
+      ""value"": relay_status
+    })
+  }
+  if (light_mode) {
+    payload.push({
+      ""code"": ""light_mode"",
+      ""value"": light_mode
+    })
+  }
+
+  return {
+    payload: payload
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""switch_1"":  //开关状态 {true,false}
+          objstatus['switch_1'] = value
+        break
+        case ""switch_2"":  //开关状态 {true,false}
+          objstatus['switch_2'] = value
+        break
+        case ""relay_status"":  //上电状态
+          objstatus['relay_status'] = value
+        break
+        case ""light_mode"":  //指示灯模式
+          objstatus['light_mode'] = value
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""switch_1"": true,
+    ""switch_2"": true
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""code"": ""switch_1"",
+        ""value"": true
+      },
+      {
+        ""code"": ""switch_2"",
+        ""value"": true
+      }
+    ]
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""235"",
+            ""code"": ""switch_1"",
+            ""t"": 1645443640019,
+            ""value"": false
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""switch_1"": false
+    },
+    ""data"": {}
+  }
+]","mdgqmgcs"
+"48fa9e07-5891-40dd-8abe-73c5f913e9d2","/*
+ * bijun kelong
+ * */
+
+function Encode(option) {
+
+  const payload = []
+
+  const {switch_1, switch_2, relay_status, light_mode} = option
+  if (option.hasOwnProperty('switch_1')) {
+    payload.push({
+      ""code"": ""switch_1"",
+      ""value"": switch_1
+    })
+  }
+  if (option.hasOwnProperty('switch_2')) {
+    payload.push({
+      ""code"": ""switch_2"",
+      ""value"": switch_2
+    })
+  }
+  if (relay_status) {
+    payload.push({
+      ""code"": ""relay_status"",
+      ""value"": relay_status
+    })
+  }
+  if (light_mode) {
+    payload.push({
+      ""code"": ""light_mode"",
+      ""value"": light_mode
+    })
+  }
+
+  return {
+    payload: payload
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""switch_1"":  //开关状态 {true,false}
+          objstatus['switch_1'] = value
+        break
+        case ""switch_2"":  //开关状态 {true,false}
+          objstatus['switch_2'] = value
+        break
+        case ""relay_status"":  //上电状态
+          objstatus['relay_status'] = value
+        break
+        case ""light_mode"":  //指示灯模式
+          objstatus['light_mode'] = value
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""switch_1"": true,
+    ""switch_2"": true
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""code"": ""switch_1"",
+        ""value"": true
+      },
+      {
+        ""code"": ""switch_2"",
+        ""value"": true
+      }
+    ]
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""235"",
+            ""code"": ""switch_1"",
+            ""t"": 1645443640019,
+            ""value"": false
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""switch_1"": false
+    },
+    ""data"": {}
+  }
+]","co71gpww"
+"d2457e05-4768-440d-832a-103200f62f49","/*
+ * bijun kelong
+ * */
+
+function Encode(option) {
+
+  const payload = []
+
+  const {switch_1, relay_status, light_mode} = option
+  if (option.hasOwnProperty('switch_1')) {
+    payload.push({
+      ""code"": ""switch_1"",
+      ""value"": switch_1
+    })
+  }
+  if (relay_status) {
+    payload.push({
+      ""code"": ""relay_status"",
+      ""value"": relay_status
+    })
+  }
+  if (light_mode) {
+    payload.push({
+      ""code"": ""light_mode"",
+      ""value"": light_mode
+    })
+  }
+
+  return {
+    payload: payload
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""switch_1"":  //开关状态 {true,false}
+          objstatus['switch_1'] = value
+        break
+        case ""relay_status"":  //上电状态
+          objstatus['relay_status'] = value
+        break
+        case ""light_mode"":  //指示灯模式
+          objstatus['light_mode'] = value
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""switch_1"": true
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""code"": ""switch_1"",
+        ""value"": true
+      }
+    ]
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""235"",
+            ""code"": ""switch_1"",
+            ""t"": 1645443640019,
+            ""value"": false
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""switch_1"": false
+    },
+    ""data"": {}
+  }
+]","9bzxjmjp"
+"8f7246b5-0f8e-4b74-ba6c-28d3766204ff","/*
+ * bijun kelong
+ * */
+
+function Encode(option) {
+
+  const payload = []
+
+  const {sensitivity} = option
+  if (sensitivity) {
+    payload.push({
+      ""code"": ""sensitivity"",
+      ""value"": sensitivity
+    })
+  }
+
+
+  return {
+    payload: payload
+  }
+}","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+const {
+    payload: {
+      data: {
+        status
+      }
+    }
+  } = option
+
+  const objstatus = {}
+  const objdata = {}
+
+  for (let i = 0, len = status.length; i < len; i++) {
+    const { code, value } = status[i]
+    switch(code){
+        case ""sensitivity"":  //灵敏度 
+          objstatus['sensitivity'] = value
+        break
+        case ""presence_state"":  //存在状态 
+          objstatus['presence_state'] = value
+          objdata['presence_state'] = value
+        break
+      }
+  }
+
+  return { status: objstatus,data: objdata }
+}
+","[
+  {
+    ""sensitivity"": 1
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""code"": ""sensitivity"",
+        ""value"": 1
+      }
+    ]
+  }
+]","[
+  {
+    ""payload"": {
+      ""data"": {
+        ""dataId"": ""AAXYhbOpS6YxXL3dYScBlB"",
+        ""devId"": ""100030308cce4ef0cdc4"",
+        ""productKey"": ""jlxzhgavdanrg2ie"",
+        ""status"": [
+          {
+            ""24"": ""presence"",
+            ""code"": ""presence_state"",
+            ""t"": 1645443640019,
+            ""value"": ""presence""
+          }
+        ]
+      },
+      ""protocol"": 4,
+      ""pv"": ""2.0"",
+      ""sign"": ""2cc28f98e1ea42445d7baa317de082f6"",
+      ""t"": 1645443640154
+    },
+    ""messageId"": ""CP3u1hYQlwMYCCAA"",
+    ""properties"": {},
+    ""publishTime"": ""2022-02-21T19:40:40.154+08:00"",
+    ""redeliveryCount"": 0,
+    ""key"": ""100030308cce4ef0cdc4""
+  }
+]","[
+  {
+    ""status"": {
+      ""presence_state"": ""presence""
+    },
+    ""data"": {
+      ""presence_state"": ""presence""
+    }
+  }
+]","ynuidkkp"
+"f230ed15-d6f5-4a67-bb9f-e757f19278e0","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { data:{NO, NO2, NOX, CO, O3, SO2, CO2, PM1, PM25, PM10, TEMP, HUMI, FLOW,SPEED,DIR, P1, P2, P3} } = option
+  return {
+    data: {
+          ws_no  : NO/10,
+          ws_no2 : NO2/10,
+          ws_nox : NOX/10,
+          ws_co  : CO/10,
+          ws_o3  : O3/10,
+          ws_so2 : SO2/10,
+          ws_co2 : CO2/10,
+          ws_pm1 : PM1/10,
+          ws_pm25: PM25/10,
+          ws_pm10: PM10/10,
+          ws_temp: TEMP/100,
+          ws_humi: HUMI/100,
+          ws_flow: FLOW/10,
+          ws_speed: SPEED/100,
+          ws_dir: DIR,
+          ws_p1  : P1,
+          ws_p2  : P2,
+          ws_p3  : P3
+    },
+        status: {
+          ws_no  : NO/10,
+          ws_no2 : NO2/10,
+          ws_nox : NOX/10,
+          ws_co  : CO/10,
+          ws_o3  : O3/10,
+          ws_so2 : SO2/10,
+          ws_co2 : CO2/10,
+          ws_pm1 : PM1/10,
+          ws_pm25: PM25/10,
+          ws_pm10: PM10/10,
+          ws_temp: TEMP/100,
+          ws_humi: HUMI/100,
+          ws_flow: FLOW/10,
+          ws_speed: SPEED/100,
+          ws_dir: DIR,
+          ws_p1  : P1,
+          ws_p2  : P2,
+          ws_p3  : P3
+    }
+  }
+}
+",NULL,NULL,"[
+  {
+    ""customID"": ""T00000000023"",
+    ""data"": {
+      ""NO"": 1,
+      ""NO2"": 2,
+      ""NOX"": 3,
+      ""CO"": 2,
+      ""O3"": 4,
+      ""SO2"": 1,
+      ""CO2"": 1,
+      ""PM1"": 1,
+      ""PM25"": 1,
+      ""PM10"": 40,
+      ""TEMP"": 3000,
+      ""HUMI"": 1000,
+      ""FLOW"": 1000,
+      ""SPEED"": 1000,
+      ""DIR"": 100,
+      ""P1"": 1,
+      ""P2"": 8,
+      ""P3"": 1
+    },
+    ""time"": 1690282237000
+  }
+]","[
+  {
+    ""data"": {
+      ""ws_no"": 0.1,
+      ""ws_no2"": 0.2,
+      ""ws_nox"": 0.3,
+      ""ws_co"": 0.2,
+      ""ws_o3"": 0.4,
+      ""ws_so2"": 0.1,
+      ""ws_co2"": 0.1,
+      ""ws_pm1"": 0.1,
+      ""ws_pm25"": 0.1,
+      ""ws_pm10"": 4,
+      ""ws_temp"": 30,
+      ""ws_humi"": 10,
+      ""ws_flow"": 100,
+      ""ws_speed"": 10,
+      ""ws_dir"": 100,
+      ""ws_p1"": 1,
+      ""ws_p2"": 8,
+      ""ws_p3"": 1
+    },
+    ""status"": {
+      ""ws_no"": 0.1,
+      ""ws_no2"": 0.2,
+      ""ws_nox"": 0.3,
+      ""ws_co"": 0.2,
+      ""ws_o3"": 0.4,
+      ""ws_so2"": 0.1,
+      ""ws_co2"": 0.1,
+      ""ws_pm1"": 0.1,
+      ""ws_pm25"": 0.1,
+      ""ws_pm10"": 4,
+      ""ws_temp"": 30,
+      ""ws_humi"": 10,
+      ""ws_flow"": 100,
+      ""ws_speed"": 10,
+      ""ws_dir"": 100,
+      ""ws_p1"": 1,
+      ""ws_p2"": 8,
+      ""ws_p3"": 1
+    }
+  }
+]","mega-tereo-ws-01"
+"d1dc5a5f-c025-4bbe-ad41-1830de31676c","","",NULL,NULL,NULL,NULL,"j0zozzoarutv0nu1"
+"fbd6b389-b81f-4a67-8dbd-a2582d4b4d19","","",NULL,NULL,NULL,NULL,"uefkexga"
+"a2636ee0-59f2-42aa-91d1-8db99ff70086","/*
+ * @ Connor
+ *
+ * @ 2022-10-09
+ * */
+
+function Encode(option) {
+  const { port, nodeID, slaveID, mb_vfd_fanspeed_input, mb_vfd_inverter_control } = option 
+
+  if( mb_vfd_fanspeed_input !== undefined) {
+    return {
+      ""payload"":{
+        ""data"":[mb_vfd_fanspeed_input],
+        ""function"":16,
+        ""address"":4096,
+        ""quantity"":1
+      }
+    }
+  }
+
+  if( mb_vfd_inverter_control !== undefined) {
+    return {
+      ""payload"":{
+        ""data"":[mb_vfd_inverter_control],
+        ""function"":16,
+        ""address"":8192,
+        ""quantity"":1
+      }
+    }
+  }
+
+  return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [
+          {
+            ""function"": 3,
+            ""address"": 4096,
+            ""quantity"": 2,
+            ""rate"": 10000
+          },          
+          {
+            ""function"": 3,
+            ""address"": 4126,
+            ""quantity"": 3,
+            ""rate"": 20000
+          },          
+          {
+            ""function"": 3,
+            ""address"": 12288,
+            ""quantity"": 1,
+            ""rate"": 20000
+          },          
+          {
+            ""function"": 3,
+            ""address"": 32768,
+            ""quantity"": 1,
+            ""rate"": 30000
+          }
+        ]
+      }
+  }
+}
+","/*
+ * @ Connor
+ *
+ * @ 2022-10-09
+ * */
+ 
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 4096:
+
+      const mb_vfd_fanspeed_input =  T_M_SIGNED(data, 0)
+      const mb_vfd_frq =  T_M_SIGNED(data, 1)
+ 
+      return {
+        data: {
+          mb_vfd_fanspeed_input, 
+          mb_vfd_frq,
+        },
+        status: {
+          mb_vfd_fanspeed_input,
+          mb_vfd_frq
+        }
+      }
+    
+    case 4126:
+
+      const mb_vfd_actual_speed =  T_M_SIGNED(data, 0)
+      const mb_vfd_x_input =  T_M_SIGNED(data, 1)
+      const mb_vfd_y_input =  T_M_SIGNED(data, 2)
+
+      return {
+        data: {
+          mb_vfd_actual_speed,
+          mb_vfd_x_input,
+          mb_vfd_y_input
+        },
+        status: {
+          mb_vfd_actual_speed,
+          mb_vfd_x_input,
+          mb_vfd_y_input
+        }
+      }
+    
+    case 12288:
+
+      const mb_vfd_inverter_status =  T_M_SIGNED(data, 0)
+
+      return {
+        data: {
+          mb_vfd_inverter_status
+        },
+        status: {
+          mb_vfd_inverter_status
+        }
+      }    
+
+    case 32768:
+
+      const mb_vfd_fault_code =  T_M_SIGNED(data, 0)
+
+      return {
+        data: {
+          mb_vfd_fault_code
+        },
+        status: {
+          mb_vfd_fault_code
+        }
+      }    
+
+    default:
+      return { data: {} ,status: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 1
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 1,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 4096,
+          ""quantity"": 2,
+          ""rate"": 10000
+        },
+        {
+          ""function"": 3,
+          ""address"": 4126,
+          ""quantity"": 3,
+          ""rate"": 20000
+        },
+        {
+          ""function"": 3,
+          ""address"": 12288,
+          ""quantity"": 1,
+          ""rate"": 20000
+        },
+        {
+          ""function"": 3,
+          ""address"": 32768,
+          ""quantity"": 1,
+          ""rate"": 30000
+        }
+      ]
+    }
+  }
+]","[
+  {
+    ""data"": [
+      1,
+      1
+    ],
+    ""address"": 4096,
+    ""quantity"": 2
+  }
+]","[
+  {
+    ""data"": {
+      ""mb_vfd_frq"": 1,
+      ""mb_vfd_fanspeed_input"": 1
+    },
+    ""status"": {
+      ""mb_vfd_frq"": 1,
+      ""mb_vfd_fanspeed_input"": 1
+    }
+  }
+]","HS-551M"
+"ea5fbf73-b58e-4f58-8b23-efd31dede4c9","/*
+ * 编码器 - 1.0.0
+ * 
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Encode(option) {
+  let {woosing_laundry_on_cmd, usage_seconds} = option
+  // const payload = []
+  // payload.push({
+  //   ""woosing_laundry_on_cmd"": woosing_laundry_on_cmd ? true : false
+  // })
+  if (usage_seconds) {
+    woosing_laundry_on_cmd = Math.ceil(usage_seconds/(15*60))
+  }
+  return  {payload : { woosing_laundry_on_cmd }}
+}
+","","[
+  {
+    ""woosing_laundry_on_cmd"": 1
+  }
+]","[
+  {
+    ""payload"": {
+      ""woosing_laundry_on_cmd"": 1
+    }
+  }
+]",NULL,NULL,"mega-tereo-cuhk-dry"
+"c245b0e6-1cb8-47c1-8f9a-3a2e7f9064d5","","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const {
+    body: {
+      payload
+    }
+    // header: {
+    //   channelNo,
+    //   deviceId,
+    //   messageId,
+    //   messageTime,
+    //   type
+    // }
+  } = option
+
+  /**
+   * default options: {
+   *  object: true, // true 解析为对象, false 解析为 JSON 字符串
+   *  coerce: false // 如果为 true 会强转对象, 比如字符串转数值
+   * }
+   */
+  const {
+    EventNotificationAlert: {
+      peopleCounting: {
+        enter,
+        exit
+      },
+      childCounting: {
+        enter: child_enter,
+        exit: child_exit
+      }
+    }
+  } = T_U_XML_TO_JSON(payload)
+
+  const obj = {
+    enter: Number(enter),
+    exit: Number(exit),
+    child_enter: Number(child_enter),
+    child_exit: Number(child_exit)
+  }
+
+  return {
+    data: obj,
+    status: obj
+  }
+
+  // return {
+  //   data: {},
+  //   channelNo,
+  //   deviceId,
+  //   messageId,
+  //   messageTime,
+  //   type,
+  //   EventNotificationAlert
+  // }
+}",NULL,NULL,"[
+  {
+    ""body"": {
+      ""payload"": ""<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\r\n<EventNotificationAlert version=\""1.0\"" xmlns=\""urn:psialliance-org\"">\r\n<ipAddress>192.168.10.32</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>24:28:fd:f3:3a:11</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-10-12T19:15:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-10-12T19:00:00+08:00</startTime>\r\n<endTime>2021-10-12T19:15:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>1</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n""
+    },
+    ""header"": {
+      ""channelNo"": 0,
+      ""deviceId"": ""G38086739"",
+      ""messageId"": ""61656e356fd6d0001e06ea1c"",
+      ""messageTime"": 1634037301071,
+      ""type"": ""ys.open.isapi""
+    }
+  }
+]","[
+  {
+    ""data"": {
+      ""enter"": 0,
+      ""exit"": 1,
+      ""child_enter"": 0,
+      ""child_exit"": 0
+    },
+    ""status"": {
+      ""enter"": 0,
+      ""exit"": 1,
+      ""child_enter"": 0,
+      ""child_exit"": 0
+    }
+  }
+]","DS-2CD6825G0/C-IVS"
+"7d434d32-a32e-422d-a913-f70dff7c0390","/*
+ * 编码器 - 1.0.0
+ * 
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Encode(option) {
+  let {woosing_laundry_on_cmd, usage_seconds} = option
+  // const payload = []
+  // payload.push({
+  //   ""woosing_laundry_on_cmd"": woosing_laundry_on_cmd ? true : false
+  // })
+  if (usage_seconds) {
+    woosing_laundry_on_cmd = Math.ceil(usage_seconds/(37*60))
+  }
+  return  {payload : { woosing_laundry_on_cmd }}
+}
+","/*
+ * 解码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+
+function Decode(option) {
+  const { laundry } = option
+  
+  return {
+        data: {
+          woosing_laundry_sta: laundry,
+        },
+        status: {
+          woosing_laundry_sta: laundry,
+        }
+      }
+}
+","[
+  {
+    ""usage_seconds"": 1
+  }
+]","[
+  {
+    ""payload"": {
+      ""woosing_laundry_on_cmd"": 1
+    }
+  }
+]","[
+  {
+    ""laundry"": true
+  }
+]","[
+  {
+    ""data"": {
+      ""woosing_laundry_sta"": true
+    },
+    ""status"": {
+      ""woosing_laundry_sta"": true
+    }
+  }
+]","mega-tereo-cuhk-laundry"
+"34f235c5-a857-4a5f-8543-096bbff83a68","/*
+ * @ Connor
+ *
+ * @ 2023-08-09
+ * */
+
+function Encode(option) {
+    const {port, nodeID, slaveID} = option
+
+    return {
+      port,
+      [`slave_${nodeID}`]: {
+        slave_id: slaveID,
+        slave_config: [{
+            ""function"": 3,
+            ""address"": 0,
+            ""quantity"": 10,
+            ""rate"": 120000
+        },{
+            ""function"": 3,
+            ""address"": 10,
+            ""quantity"": 10,
+            ""rate"": 120000
+        },{
+            ""function"": 3,
+            ""address"": 18,
+            ""quantity"": 8,
+            ""rate"": 120000
+        },{
+            ""function"": 3,
+            ""address"": 26,
+            ""quantity"": 8,
+            ""rate"": 120000
+        },{
+            ""function"": 3,
+            ""address"": 34,
+            ""quantity"": 8,
+            ""rate"": 120000
+        }]
+      }
+    }
+}
+","/*
+ * @ Connor
+ *
+ * @ 2023-08-09
+ * */
+function limitDecimal(num, decimalPlaces=1) {  
+    return Math.round((num * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces));  
+}
+ 
+function Decode(option) {
+  const { data, address, quantity } = option
+
+  if (!(data && data.length === quantity)) return { data: {} }
+
+  switch (address) {
+    case 0: //Infrared temperature sensor
+
+      const mb_temp_1 =  limitDecimal(T_M_SIGNED(data, 0)*0.1,2)
+      const mb_temp_2 =  limitDecimal(T_M_SIGNED(data, 1)*0.1,2)
+      const mb_temp_3 =  limitDecimal(T_M_SIGNED(data, 2)*0.1,2)
+      const mb_temp_4 =  limitDecimal(T_M_SIGNED(data, 3)*0.1,2)
+      const mb_temp_5 =  limitDecimal(T_M_SIGNED(data, 4)*0.1,2)
+      const mb_temp_6 =  limitDecimal(T_M_SIGNED(data, 5)*0.1,2)
+      const mb_temp_7 =  limitDecimal(T_M_SIGNED(data, 6)*0.1,2)
+      const mb_temp_8 =  limitDecimal(T_M_SIGNED(data, 7)*0.1,2)
+      const mb_temp_9 =  limitDecimal(T_M_SIGNED(data, 8)*0.1,2)
+      const mb_temp_10 =  limitDecimal(T_M_SIGNED(data, 9)*0.1,2)
+    
+      return {
+        data: {
+          mb_temp_1,
+          mb_temp_2,
+          mb_temp_3,mb_temp_4,mb_temp_5,mb_temp_6,mb_temp_7,mb_temp_8,mb_temp_9,mb_temp_10,
+        },
+        status: {
+          mb_temp_1,
+          mb_temp_2,
+          mb_temp_3,mb_temp_4,mb_temp_5,mb_temp_6,mb_temp_7,mb_temp_8,mb_temp_9,mb_temp_10,
+        }
+      }
+    case 10:  //Schneider power meter PM5300 no.1
+      const mb_current_1 = limitDecimal(T_M_FLOAT_CD_AB(data, 0),2)
+      const mb_voltage_1 = limitDecimal(T_M_FLOAT_CD_AB(data, 2),2)
+      const mb_kw_1 = limitDecimal(T_M_FLOAT_CD_AB(data, 4),2)
+      const Wh1 = T_M_LONG_AB_CD(data, 6)
+      const kWh1 = T_M_LONG_AB_CD(data, 6)/1000  
+      return {
+        data: {
+          mb_current_1,mb_voltage_1,mb_kw_1,Wh1
+        },
+        status: {
+          mb_current_1,mb_voltage_1,mb_kw_1,kWh1,Wh1
+        }
+      }
+    case 18:  //Schneider power meter PM5100 no.2
+      const mb_current_2 = limitDecimal(T_M_FLOAT_CD_AB(data, 0),2)
+      const mb_voltage_2 = limitDecimal(T_M_FLOAT_CD_AB(data, 2),2) 
+      const mb_kw_2 = limitDecimal(T_M_FLOAT_CD_AB(data, 4),2)
+      const Wh2 = T_M_LONG_AB_CD(data, 6)
+      const kWh2 = T_M_LONG_AB_CD(data, 6)/1000  
+      return {
+        data: {
+          mb_current_2,mb_voltage_2,mb_kw_2,Wh2
+        },
+        status: {
+          mb_current_2,mb_voltage_2,mb_kw_2,kWh2,Wh2
+        }
+      }
+    case 26:  //Schneider power meter PM5100 no.3
+      const mb_current_3 = limitDecimal(T_M_FLOAT_CD_AB(data, 2),2)
+      const mb_voltage_3 = limitDecimal(T_M_FLOAT_CD_AB(data, 4),2)  
+      const mb_kw_3 = limitDecimal(T_M_FLOAT_CD_AB(data, 6),2)
+      const Wh3 = T_M_LONG_AB_CD(data, 0)
+      const kWh3 = T_M_LONG_AB_CD(data, 0)/1000  
+      return {
+        data: {
+          mb_current_3,mb_voltage_3,mb_kw_3,Wh3
+        },
+        status: {
+          mb_current_3,mb_voltage_3,mb_kw_3,kWh3,Wh3
+        }
+      }
+    case 34:  //Schneider power meter PM5500 no.4
+      const mb_current_4 = limitDecimal(T_M_FLOAT_CD_AB(data, 2),2)
+      const mb_voltage_4 = limitDecimal(T_M_FLOAT_CD_AB(data, 4),2)    
+      const mb_kw_4 = limitDecimal(T_M_FLOAT_CD_AB(data, 6),2)
+      const Wh4 = T_M_LONG_AB_CD(data, 0)
+      const kWh4 = T_M_LONG_AB_CD(data, 0)/1000  
+      return {
+        data: {
+          mb_current_4,mb_voltage_4,mb_kw_4,Wh4
+        },
+        status: {
+          mb_current_4,mb_voltage_4,mb_kw_4,kWh4,Wh4
+        }
+      }
+    default:
+      return { data: {} ,status: {} }
+  }
+}
+","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""nodeID"": 1,
+    ""slaveID"": 1
+  }
+]","[
+  {
+    ""port"": {
+      ""baudrate"": 9600,
+      ""databit"": 8,
+      ""parity"": 0,
+      ""stopbit"": 1
+    },
+    ""slave_1"": {
+      ""slave_id"": 1,
+      ""slave_config"": [
+        {
+          ""function"": 3,
+          ""address"": 0,
+          ""quantity"": 10,
+          ""rate"": 120000
+        },
+        {
+          ""function"": 3,
+          ""address"": 10,
+          ""quantity"": 10,
+          ""rate"": 120000
+        },
+        {
+          ""function"": 3,
+          ""address"": 18,
+          ""quantity"": 8,
+          ""rate"": 120000
+        },
+        {
+          ""function"": 3,
+          ""address"": 26,
+          ""quantity"": 8,
+          ""rate"": 120000
+        },
+        {
+          ""function"": 3,
+          ""address"": 34,
+          ""quantity"": 8,
+          ""rate"": 120000
+        }
+      ]
+    }
+  }
+]","[
+  {
+    ""data"": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    ""address"": 0,
+    ""quantity"": 20
+  }
+]","[
+  {
+    ""data"": {
+      ""mb_temp_1"": 0,
+      ""mb_temp_2"": 0,
+      ""mb_temp_3"": 0,
+      ""mb_temp_4"": 0,
+      ""mb_temp_5"": 0,
+      ""mb_temp_6"": 0,
+      ""mb_temp_7"": 0,
+      ""mb_temp_8"": 0,
+      ""mb_temp_9"": 0,
+      ""mb_temp_10"": 0
+    },
+    ""status"": {
+      ""mb_temp_1"": 0,
+      ""mb_temp_2"": 0,
+      ""mb_temp_3"": 0,
+      ""mb_temp_4"": 0,
+      ""mb_temp_5"": 0,
+      ""mb_temp_6"": 0,
+      ""mb_temp_7"": 0,
+      ""mb_temp_8"": 0,
+      ""mb_temp_9"": 0,
+      ""mb_temp_10"": 0
+    }
+  }
+]","PLC_MB_IVE"
+"d2e5bf28-e33f-4843-ad7d-21c56e904312","/*
+ * 编码器 - 1.0.0
+ *
+ * 注意: 以<T_>开头的预设函数
+ * */
+function arrToBase64(arr) {
+  const b = String.fromCharCode(...arr)
+  return btoa(b)
+}
+
+//1制冷<cold|cool>
+//2加热<hot,heat>
+//4 除湿<dry>
+//8通风<wind,fan>
+const lora_mode_set = {
+  cold: 1,
+  cool: 1,
+  hot: 2,
+  heat: 2,
+  dry: 4,
+  wind: 8,
+  fan: 8
+}
+
+/**
+ * 1高速,2中速,4低速,8自动
+ */
+const lora_fan_speed_set = {
+  high: 1,
+  middle: 2,
+  low: 4,
+  auto: 8
+}
+
+function Encode(option) {
+  const cmd_array = [0xfa, 4, 0, 0];
+  let [...new_cmd_array] = cmd_array
+  const payload = []
+
+  const cmd = option.cmd;
+
+  //const status = option.status;
+  const status = T_A_GET_STATUS();
+  let lora_mode = """"
+  if (cmd.lora_mode) {
+    lora_mode = cmd.lora_mode
+  } else {
+    lora_mode = status.lora_mode
+  }
+  let mode = lora_mode_set[lora_mode];
+  // if(mode != '01' || mode != '02' )
+  // mode = '01';
+
+  if (cmd && cmd.hasOwnProperty('lora_switch')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 3;
+    new_cmd_array[3] = cmd.lora_switch == true || cmd.lora_switch == 'true' ? 2 : 0;
+    payload.push({
+      fPort: 1,
+      commands: {
+        data: arrToBase64(new_cmd_array),
+      }
+    })
+  }
+
+  if (cmd && cmd.hasOwnProperty('lora_mode')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 5;
+    new_cmd_array[3] = lora_mode_set[cmd.lora_mode];
+    payload.push({
+      fPort: 2,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_fan_speed')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 6;
+    new_cmd_array[3] = mode;
+    new_cmd_array.push(lora_fan_speed_set[cmd.lora_fan_speed])
+    payload.push({
+      fPort: 3,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_set_temp')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 7;
+    new_cmd_array[3] = mode;
+    new_cmd_array.push(cmd.lora_set_temp)
+    payload.push({
+      fPort: 4,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  if (cmd && cmd.hasOwnProperty('lora_temp_current')) {
+    [...new_cmd_array] = cmd_array;
+    new_cmd_array[2] = 8;
+    new_cmd_array[3] = Math.floor(cmd.lora_temp_current);
+    new_cmd_array.push((cmd.lora_temp_current - Math.floor(cmd.lora_temp_current)) * 10)
+    payload.push({
+      fPort: 5,
+      commands: {
+        data: arrToBase64(new_cmd_array)
+      }
+    })
+  }
+  return {
+    payload: payload
+  }
+}
+","  
+function Decode(option) {
+  const [data_0,data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8] = base64ToArr(option.data);
+
+  const objstatus = {}
+  const objdata = {}
+  
+  if (data_0 === 202 && data_1 === 2) {
+
+    objdata['lora_set_temp'] = data_8;
+    objdata['lora_temp_current'] = data_7;
+
+    objstatus['lora_set_temp'] = data_8;
+    objstatus['lora_temp_current'] = data_7;
+    objstatus['lora_switch'] = !!data_4;
+    objstatus['lora_mode'] = modeMapping[data_5];
+    objstatus['lora_fan_speed'] = fanSpeedMapping[data_6];
+    
+  }else if(data_0 === 251 && data_1 === 4){
+      switch(data_2){
+        case 3: // 开关
+          objstatus['lora_switch'] = !!data_3;
+        break
+        case 5: //模式：01 制冷、02 加热、04 除湿、08 通风
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+        case 6: //风速：(01 高速、02 中速、04 低速、08 自动
+          objstatus['lora_fan_speed'] = fanSpeedMapping[data_4];
+
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+        case 7: //温度设定
+          objstatus['lora_set_temp'] = data_4;
+          objdata['lora_set_temp'] = data_4;
+
+          objstatus['lora_mode'] = modeMapping[data_3];
+        break
+      }
+  }
+  return { status: objstatus,data: objdata }
+}
+
+const modeMapping = {
+  1: ""cool"",
+  2: ""heat"",
+  4: ""dry"",
+  8: ""fan""
+}
+
+const fanSpeedMapping = {
+  1: ""high"",
+  2: ""middle"",
+  4: ""low"",
+  8: ""auto""
+}
+function base64ToArr(str) {
+  const raw = atob(str)
+
+  const arr = []
+  for (let i = 0, len = raw.length; i < len; i++) {
+    arr.push(raw.charCodeAt(i))
+  }
+
+  return arr
+}","[
+  {
+    ""cmd"": {
+      ""lora_switch"": true,
+      ""lora_mode"": ""cold"",
+      ""lora_fan_speed"": ""high""
+    },
+    ""status"": {
+      ""lora_switch"": true,
+      ""lora_mode"": ""cool"",
+      ""lora_fan_speed"": ""low"",
+      ""lora_temp_current"": 24,
+      ""lora_set_temp"": 19
+    }
+  }
+]","[
+  {
+    ""payload"": [
+      {
+        ""fPort"": 1,
+        ""commands"": {
+          ""data"": ""+gQDAg==""
+        }
+      },
+      {
+        ""fPort"": 2,
+        ""commands"": {
+          ""data"": ""+gQFAQ==""
+        }
+      },
+      {
+        ""fPort"": 3,
+        ""commands"": {
+          ""data"": ""+gQGAQE=""
+        }
+      }
+    ]
+  }
+]","[
+  {
+    ""applicationID"": ""16"",
+    ""applicationName"": ""test_yin"",
+    ""deviceName"": ""test_yin"",
+    ""devEUI"": ""ca10010aca10010a"",
+    ""rxInfo"": [
+      {
+        ""gatewayID"": ""a840411eeda44150"",
+        ""uplinkID"": ""cc8628df-7c95-4251-84eb-e294a8ffdd10"",
+        ""name"": ""fusquare-dragino-gw"",
+        ""time"": ""2023-04-20T03:26:45.893864Z"",
+        ""rssi"": -72,
+        ""loRaSNR"": 9.8,
+        ""location"": {
+          ""latitude"": 0,
+          ""longitude"": 0,
+          ""altitude"": 0
+        }
+      }
+    ],
+    ""txInfo"": {
+      ""frequency"": 923400000,
+      ""dr"": 2
+    },
+    ""adr"": false,
+    ""fCnt"": 3,
+    ""fPort"": 5,
+    ""data"": ""ygIAAAEBBBgTFUE=""
+  }
+]","[
+  {
+    ""status"": {
+      ""lora_set_temp"": 19,
+      ""lora_temp_current"": 24,
+      ""lora_switch"": true,
+      ""lora_mode"": ""cool"",
+      ""lora_fan_speed"": ""low""
+    },
+    ""data"": {
+      ""lora_set_temp"": 19,
+      ""lora_temp_current"": 24
+    }
+  }
+]","test_yin"
