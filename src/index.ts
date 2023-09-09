@@ -204,7 +204,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
         }
 
         const T_A_GET_STATUS = () => {
-          return option.status;
+          return option.__STATUS__ || option.status;
         }
 
         const T_H_GET_VALIDATE_CODE = customID => {
