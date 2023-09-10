@@ -39,7 +39,7 @@ describe('Decode', () => {
       const jsSandbox = new JsSandbox();
       await jsSandbox.runCodeSafe('', null);
     } catch (error) {
-      expect((error as any).message).toEqual('[JS-SANDBOX] main function is not defined!');
+      expect((error as any).message).toEqual("'main' is not defined");
     }
   });
 
@@ -80,29 +80,22 @@ describe('Decode', () => {
 
   it('Basc should be ok', async () => {
     const fun = `
-      function Decode(option) {
-        const { laundry } = option
+      function main() {
         console.log(atob)
         console.log(btoa)
         return {
           data: {
-            woosing_laundry_sta: laundry,
+            woosing_laundry_sta: true,
           },
           status: {
-            woosing_laundry_sta: laundry,
+            woosing_laundry_sta: true,
           }
         }
       }
     `;
 
-    const option = {
-      laundry: true,
-    };
-
-    const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
-    });
-    const res = await jsSandbox.runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox();
+    const res = await jsSandbox.runCodeSafe(fun);
 
     expect(res).toEqual({
       data: {

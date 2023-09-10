@@ -14,7 +14,7 @@ export type JsSandboxOption = {
   customFunctions?: CustomFunction[];
 };
 
-export type RunOption = { [key: string]: SafeAny } | null; // | SafeAny[]
+export type RunOption = { [key: string]: SafeAny } | null;
 
 const _ALLOW_SYSTEM_FUNCTIONS = ['console.log', 'btoa', 'atob'];
 
@@ -32,7 +32,7 @@ const ATOB__JSON__ = (...args: unknown[]) => {
 
 class JsSandbox {
   // 入口函数
-  private _mainFunction = '';
+  private _mainFunction = 'main';
   // 全局系统函数
   private _systemFunctions: string[];
   // 全局自定义函数
@@ -41,7 +41,7 @@ class JsSandbox {
   constructor(option?: JsSandboxOption) {
     const { mainFunction = '', systemFunctions = _ALLOW_SYSTEM_FUNCTIONS, customFunctions = [] } = option || {};
 
-    this._mainFunction = mainFunction;
+    if (mainFunction) this._mainFunction = mainFunction;
     this._systemFunctions = this._getSystemFunctions(systemFunctions);
     this._customFunctions = this._getCustomFunctions(customFunctions);
   }
@@ -113,10 +113,8 @@ class JsSandbox {
     `;
   }
 
-  public runCodeSafe(fun: string, option: RunOption, mainFunction?: string) {
+  public runCodeSafe(fun: string, option?: RunOption, mainFunction?: string) {
     if (mainFunction) this._mainFunction = mainFunction;
-
-    if (!this._mainFunction) throw new Error('[JS-SANDBOX] main function is not defined!');
 
     return new Promise((resolve, reject) => {
       getQuickJS().then((quickjs) => {
@@ -183,7 +181,7 @@ class JsSandbox {
         }
 
         // 全局参数
-        const optionHandle = context.newString(JSON.stringify(option));
+        const optionHandle = context.newString(JSON.stringify(option ?? {}));
         context.setProp(context.global, '__OPTION__', optionHandle);
         optionHandle.dispose();
 
