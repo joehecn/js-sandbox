@@ -1,14 +1,16 @@
-// npm run test src/JSSandbox/index.spec.ts
+// npm run test src/__tests__/index.spec.ts
 
 import { describe, it, expect } from 'vitest';
-import { runCodeSafe } from '../index';
+import JsSandbox from '../index';
 
 describe('Decode', () => {
   it("Error: 'Encode' is not defined", async () => {
     try {
-      await runCodeSafe('', null);
+      const jsSandbox = new JsSandbox();
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe('', null);
     } catch (error) {
-      expect((error as any).message).toEqual("'Encode' is not defined");
+      expect((error as any).message).toEqual("main function is not defined");
     }
   });
 
@@ -20,7 +22,11 @@ describe('Decode', () => {
     `;
 
     try {
-      await runCodeSafe(fun, {});
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, {});
     } catch (error) {
       expect((error as any).message).toEqual('interrupted');
     }
@@ -34,7 +40,11 @@ describe('Decode', () => {
     `;
 
     try {
-      await runCodeSafe(fun, {});
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, {});
     } catch (error) {
       expect((error as any).message).toEqual('The number out of range');
     }
@@ -61,7 +71,11 @@ describe('Decode', () => {
       laundry: true,
     };
 
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
 
     expect(res).toEqual({
       data: {
@@ -146,7 +160,11 @@ describe('Decode', () => {
       },
     };
 
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
 
     expect(res).toEqual({
       data: {
@@ -178,7 +196,11 @@ describe('Decode', () => {
       payload:
         '<?xml version="1.0" encoding="UTF-8"?>\r\n<EventNotificationAlert version="1.0" xmlns="urn:psialliance-org">\r\n<ipAddress>192.168.10.32</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>24:28:fd:f3:3a:11</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-10-12T19:15:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-10-12T19:00:00+08:00</startTime>\r\n<endTime>2021-10-12T19:15:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>1</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n',
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual(option);
   });
 
@@ -279,7 +301,11 @@ describe('Decode', () => {
       data: 'ygIAAAEBBBgTFUE=',
     };
 
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     console.log(res);
 
     expect(res).toEqual({
@@ -430,7 +456,11 @@ describe('Decode', () => {
         lora_set_temp: 19,
       },
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Encode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       payload: [
         {
@@ -496,7 +526,11 @@ describe('Decode', () => {
       address: 38,
       quantity: 24,
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: {
         kWh: 65537,
@@ -533,11 +567,41 @@ describe('Decode', () => {
     };
 
     try {
-      await runCodeSafe(fun, option);
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
       expect((error as any).message).toEqual('The skip out of range');
     }
   });
+  it('T_M_FLOAT_AB_CD 123', async () => {
+    const fun = `
+      function Decode(option) {
+        const { arr } = option
+
+        return {
+          data: T_M_FLOAT_AB_CD(arr, 0)
+        }
+      }
+    `;
+    const option = {
+      arr: [17142, 0],
+    };
+
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
+
+    expect(res).toEqual({
+      data: 123
+    });
+  })
+
+
   it('T_M_FLOAT_CD_AB skip < 0', async () => {
     const fun = `
       function Decode(option) {
@@ -550,7 +614,11 @@ describe('Decode', () => {
     };
 
     try {
-      await runCodeSafe(fun, option);
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
       expect((error as any).message).toEqual('The skip out of range');
     }
@@ -567,7 +635,11 @@ describe('Decode', () => {
     };
 
     try {
-      await runCodeSafe(fun, option);
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
       expect((error as any).message).toEqual('The skip out of range');
     }
@@ -584,7 +656,11 @@ describe('Decode', () => {
     };
 
     try {
-      await runCodeSafe(fun, option);
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
       expect((error as any).message).toEqual('The skip out of range');
     }
@@ -601,7 +677,11 @@ describe('Decode', () => {
     };
 
     try {
-      await runCodeSafe(fun, option);
+      const jsSandbox = new JsSandbox({
+        mainFunction: 'Decode'
+      });
+      await jsSandbox.init();
+      await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
       expect((error as any).message).toEqual('The skip out of range');
     }
@@ -620,7 +700,11 @@ describe('Decode', () => {
     const option = {
       arr: [57920, 1],
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: 123456,
     });
@@ -639,7 +723,11 @@ describe('Decode', () => {
     const option = {
       num: 123,
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: [17142, 0],
     });
@@ -658,7 +746,11 @@ describe('Decode', () => {
     const option = {
       num: 123,
     };
-    const res = await runCodeSafe(fun, option);
+    const jsSandbox = new JsSandbox({
+      mainFunction: 'Decode'
+    });
+    await jsSandbox.init();
+    const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: [0, 17142],
     });

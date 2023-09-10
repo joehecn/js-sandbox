@@ -1,6 +1,3 @@
-import * as acorn from 'acorn';
-import * as walk from 'acorn-walk';
-
 import { getQuickJS, shouldInterruptAfterDeadline } from 'quickjs-emscripten';
 
 import {
@@ -15,70 +12,108 @@ import {
   ATOB_STRING,
 } from './browser';
 
+export type JsSandboxOption = {
+  mainFunction?: string;
+  systemFunctions?: string[];
+};
 export type SafeAny = any;
 export type RunOption = { [key: string]: SafeAny } | null; // | SafeAny[]
 
-const _parseFun = (fun: string) => {
-  const _IN_FUN_SET = new Set<string>();
+const _ALLOW_SYSTEM_FUNCTIONS = ['console.log', 'btoa', 'atob'];
 
-  const parsed = acorn.parse(fun, { ecmaVersion: 2020 });
+class JsSandbox {
+  // 入口函数
+  private _mainFunction = '';
+  // 全局系统函数
+  private _systemFunctions: string[];
+  private _quickjs: SafeAny;
 
-  walk.full(parsed, (node, _, type) => {
-    if (type === 'Function') {
-      const _node = node as SafeAny;
-      const name = _node.id?.name;
-      if (name) _IN_FUN_SET.add(name);
-    } else if (type === 'Identifier') {
-      const _node = node as SafeAny;
-      const name = _node.name;
+  constructor(option?: JsSandboxOption) {
+    const {
+      mainFunction = '',
+      systemFunctions = _ALLOW_SYSTEM_FUNCTIONS
+    } = option || {};
+    
+    this._mainFunction = mainFunction;
+    this._systemFunctions = this._getSystemFunctions(systemFunctions);
+  }
 
-      if (['T_M_FLOAT_AB_CD'].includes(name)) {
-        _IN_FUN_SET.add(name);
+  private _getSystemFunctions(systemFunctions: string[]) {
+    const set = new Set<string>();
+
+    for (let i = 0, len = systemFunctions.length; i < len; i++) {
+      const func = systemFunctions[i];
+      if (_ALLOW_SYSTEM_FUNCTIONS.includes(func)) {
+        set.add(func);
+      } else {
+        throw new Error(`system function: ${func} is not allow`);
       }
     }
-  });
 
-  return { DecodeOrEncode: _IN_FUN_SET.has('Decode') ? 'Decode' : 'Encode' };
-};
+    return Array.from(set);
+  }
 
-export function runCodeSafe(fun: string, option: RunOption) {
-  const { DecodeOrEncode } = _parseFun(fun);
+  public async init() {
+    this._quickjs = await getQuickJS();
+  }
 
-  return new Promise((resolve, reject) => {
-    getQuickJS().then((QuickJS) => {
+  public runCodeSafe(fun: string, option: RunOption, mainFunction?: string) {
+    // const { DecodeOrEncode } = _parseFun(fun);
+    if (mainFunction) this._mainFunction = mainFunction;
+
+    if (!this._mainFunction) throw new Error('main function is not defined');
+
+    return new Promise((resolve, reject) => {
+      if(!this._quickjs) return reject('quickjs not init');
       // 运行时
-      const runtime = QuickJS.newRuntime();
+      const runtime = this._quickjs.newRuntime();
       runtime.setInterruptHandler(shouldInterruptAfterDeadline(Date.now() + 3000));
       runtime.setMemoryLimit(1024 * 640);
       runtime.setMaxStackSize(1024 * 320);
 
       const context = runtime.newContext();
 
-      // 全局函数
+      // 全局系统函数
+      if (this._systemFunctions.includes('console.log')) {
+        // console.log
+        const logHandle = context.newFunction('log', (...args: SafeAny[]) => {
+          const nativeArgs = args.map(context.dump);
+          // tslint:disable-next-line: no-console
+          console.log('[JS-SANDBOX]:', ...nativeArgs);
+        });
+        const consoleHandle = context.newObject();
+        context.setProp(consoleHandle, 'log', logHandle);
+        context.setProp(context.global, 'console', consoleHandle);
+        consoleHandle.dispose();
+        logHandle.dispose();
+      }
+      if (this._systemFunctions.includes('btoa')) {
+        // btoa
+        const btoaHandle = context.newFunction('btoa', (...args: SafeAny[]) => {
+          const nativeArg = context.dump(args[0]);
+          const res = btoa(nativeArg);
+  
+          return context.newString(res);
+        });
+        context.setProp(context.global, 'btoa', btoaHandle);
+        btoaHandle.dispose();
+      }
+      if (this._systemFunctions.includes('atob')) {
+        // atob
+        // ---- ATOB_STRING
+        const ATOB_STRING_HANDLE = context.newFunction('ATOB_STRING', (...args: SafeAny[]) => {
+          const str = context.dump(args[0]);
+          const res = ATOB_STRING(str);
+  
+          return context.newString(res!);
+        });
+        context.setProp(context.global, 'ATOB_STRING', ATOB_STRING_HANDLE);
+        ATOB_STRING_HANDLE.dispose();
+      }
 
-      const logHandle = context.newFunction('log', (...args) => {
-        const nativeArgs = args.map(context.dump);
-        // tslint:disable-next-line: no-console
-        console.log('[JS-SANDBOX]:', ...nativeArgs);
-      });
-      const consoleHandle = context.newObject();
-      context.setProp(consoleHandle, 'log', logHandle);
-      context.setProp(context.global, 'console', consoleHandle);
-      consoleHandle.dispose();
-      logHandle.dispose();
-
-      // btoa
-      const btoaHandle = context.newFunction('btoa', (...args) => {
-        const nativeArg = context.dump(args[0]);
-        const res = btoa(nativeArg);
-
-        return context.newString(res);
-      });
-      context.setProp(context.global, 'btoa', btoaHandle);
-      btoaHandle.dispose();
-
+      // 全局自定义函数
       // ---- T_M_FLOAT_AB_CD
-      const T_M_FLOAT_AB_CD_HANDLE = context.newFunction('T_M_FLOAT_AB_CD', (...args) => {
+      const T_M_FLOAT_AB_CD_HANDLE = context.newFunction('T_M_FLOAT_AB_CD', (...args: SafeAny[]) => {
         const arr = context.dump(args[0]);
         const skip = context.dump(args[1]);
         const res = T_M_FLOAT_AB_CD(arr, skip);
@@ -89,7 +124,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_FLOAT_AB_CD_HANDLE.dispose();
 
       // ---- T_M_FLOAT_CD_AB
-      const T_M_FLOAT_CD_AB_HANDLE = context.newFunction('T_M_FLOAT_CD_AB', (...args) => {
+      const T_M_FLOAT_CD_AB_HANDLE = context.newFunction('T_M_FLOAT_CD_AB', (...args: SafeAny[]) => {
         const arr = context.dump(args[0]);
         const skip = context.dump(args[1]);
         const res = T_M_FLOAT_CD_AB(arr, skip);
@@ -100,7 +135,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_FLOAT_CD_AB_HANDLE.dispose();
 
       // ---- T_M_LONG_AB_CD
-      const T_M_LONG_AB_CD_HANDLE = context.newFunction('T_M_LONG_AB_CD', (...args) => {
+      const T_M_LONG_AB_CD_HANDLE = context.newFunction('T_M_LONG_AB_CD', (...args: SafeAny[]) => {
         const arr = context.dump(args[0]);
         const skip = context.dump(args[1]);
         const res = T_M_LONG_AB_CD(arr, skip);
@@ -111,7 +146,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_LONG_AB_CD_HANDLE.dispose();
 
       // ---- T_M_LONG_CD_AB
-      const T_M_LONG_CD_AB_HANDLE = context.newFunction('T_M_LONG_CD_AB', (...args) => {
+      const T_M_LONG_CD_AB_HANDLE = context.newFunction('T_M_LONG_CD_AB', (...args: SafeAny[]) => {
         const arr = context.dump(args[0]);
         const skip = context.dump(args[1]);
         const res = T_M_LONG_CD_AB(arr, skip);
@@ -122,7 +157,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_LONG_CD_AB_HANDLE.dispose();
 
       // ---- T_M_SIGNED
-      const T_M_SIGNED_HANDLE = context.newFunction('T_M_SIGNED', (...args) => {
+      const T_M_SIGNED_HANDLE = context.newFunction('T_M_SIGNED', (...args: SafeAny[]) => {
         const arr = context.dump(args[0]);
         const skip = context.dump(args[1]);
         const res = T_M_SIGNED(arr, skip);
@@ -133,7 +168,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_SIGNED_HANDLE.dispose();
 
       // ---- T_M_FLOAT_AB_CD_R_STRING
-      const T_M_FLOAT_AB_CD_R_STRING_HANDLE = context.newFunction('T_M_FLOAT_AB_CD_R_STRING', (...args) => {
+      const T_M_FLOAT_AB_CD_R_STRING_HANDLE = context.newFunction('T_M_FLOAT_AB_CD_R_STRING', (...args: SafeAny[]) => {
         const num = context.dump(args[0]);
         const res = T_M_FLOAT_AB_CD_R_STRING(num);
 
@@ -143,7 +178,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_FLOAT_AB_CD_R_STRING_HANDLE.dispose();
 
       // ---- T_M_FLOAT_CD_AB_R_STRING
-      const T_M_FLOAT_CD_AB_R_STRING_HANDLE = context.newFunction('T_M_FLOAT_CD_AB_R_STRING', (...args) => {
+      const T_M_FLOAT_CD_AB_R_STRING_HANDLE = context.newFunction('T_M_FLOAT_CD_AB_R_STRING', (...args: SafeAny[]) => {
         const num = context.dump(args[0]);
         const res = T_M_FLOAT_CD_AB_R_STRING(num);
 
@@ -153,7 +188,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       T_M_FLOAT_CD_AB_R_STRING_HANDLE.dispose();
 
       // ---- T_U_XML_TO_JSON_STRING
-      const T_U_XML_TO_JSON_STRING_HANDLE = context.newFunction('T_U_XML_TO_JSON_STRING', (...args) => {
+      const T_U_XML_TO_JSON_STRING_HANDLE = context.newFunction('T_U_XML_TO_JSON_STRING', (...args: SafeAny[]) => {
         const xml = context.dump(args[0]);
         const options = context.dump(args[1]);
         const res = T_U_XML_TO_JSON_STRING(xml, options);
@@ -163,16 +198,6 @@ export function runCodeSafe(fun: string, option: RunOption) {
       context.setProp(context.global, 'T_U_XML_TO_JSON_STRING', T_U_XML_TO_JSON_STRING_HANDLE);
       T_U_XML_TO_JSON_STRING_HANDLE.dispose();
 
-      // ---- ATOB_STRING
-      const ATOB_STRING_HANDLE = context.newFunction('ATOB_STRING', (...args) => {
-        const str = context.dump(args[0]);
-        const res = ATOB_STRING(str);
-
-        return context.newString(res!);
-      });
-      context.setProp(context.global, 'ATOB_STRING', ATOB_STRING_HANDLE);
-      ATOB_STRING_HANDLE.dispose();
-
       // 全局参数
       const optionHandle = context.newString(JSON.stringify(option));
       context.setProp(context.global, 'OPTION', optionHandle);
@@ -180,6 +205,13 @@ export function runCodeSafe(fun: string, option: RunOption) {
 
       const code = `
         const option = JSON.parse(OPTION)
+
+        const atob = str => {
+          const res = ATOB_STRING(str)
+          const arr = JSON.parse(res)
+
+          return String.fromCharCode(...arr)
+        }
 
         const T_M_FLOAT_AB_CD_R = num => {
           const res = T_M_FLOAT_AB_CD_R_STRING(num)
@@ -196,13 +228,6 @@ export function runCodeSafe(fun: string, option: RunOption) {
           return JSON.parse(res)
         }
 
-        const atob = str => {
-          const res = ATOB_STRING(str)
-          const arr = JSON.parse(res)
-
-          return String.fromCharCode(...arr)
-        }
-
         const T_A_GET_STATUS = () => {
           return option.__STATUS__ || option.status;
         }
@@ -213,7 +238,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
 
         ${fun}
 
-        ${DecodeOrEncode}(option)
+        ${this._mainFunction}(option)
       `;
 
       const result = context.evalCode(code);
@@ -229,5 +254,7 @@ export function runCodeSafe(fun: string, option: RunOption) {
       context.dispose();
       runtime.dispose();
     });
-  });
+  }
 }
+
+export default JsSandbox;

@@ -27,7 +27,6 @@ const _GET_BASIC_ARR = (arr: number[], skip: number) => {
 
   return [highNum, lowNum];
 };
-
 const _GET_BASIC_VIEW = (num0: number, num2: number) => {
   const buffer = new ArrayBuffer(4);
   const view = new DataView(buffer);
@@ -38,7 +37,7 @@ const _GET_BASIC_VIEW = (num0: number, num2: number) => {
   return view;
 };
 
-export const T_M_FLOAT_AB_CD = function T_M_FLOAT_AB_CD(arr: number[], skip: number) {
+export const T_M_FLOAT_AB_CD = (arr: number[], skip: number) => {
   const [highNum, lowNum] = _GET_BASIC_ARR(arr, skip);
   const view = _GET_BASIC_VIEW(highNum, lowNum);
 

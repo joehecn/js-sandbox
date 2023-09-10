@@ -1,10 +1,11 @@
 // npm run test src/__tests__/sandbox-data.spec.ts
 
 import { describe, it, expect } from 'vitest';
+import JsSandbox from '../index';
+
 import csvtojson from 'csvtojson';
 import path from 'path';
 
-import { runCodeSafe } from '../index';
 
 describe('data', () => {
   it('should be ok', async () => {
@@ -40,7 +41,11 @@ describe('data', () => {
           }
 
           const der = derss[j];
-          const res1 = await runCodeSafe(def, deo);
+          const jsSandbox = new JsSandbox({
+            mainFunction: 'Decode'
+          });
+          await jsSandbox.init();
+          const res1 = await jsSandbox.runCodeSafe(def, deo);
           expect(res1).toEqual(der);
         }
       }
@@ -57,7 +62,11 @@ describe('data', () => {
           }
 
           const enr = enrss[j];
-          const res2 = await runCodeSafe(enf, eno);
+          const jsSandbox = new JsSandbox({
+            mainFunction: 'Encode'
+          });
+          await jsSandbox.init();
+          const res2 = await jsSandbox.runCodeSafe(enf, eno);
           expect(res2).toEqual(enr);
         }
       }

@@ -45,8 +45,6 @@
     "vitest": "^0.34.4"
   },
   "peerDependencies": {
-    "acorn": "^8.10.0",
-    "acorn-walk": "^8.2.0",
     "fast-xml-parser": "^4.2.7",
     "quickjs-emscripten": "^0.23.0"
   }
