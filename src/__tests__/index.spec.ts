@@ -100,7 +100,7 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
 
