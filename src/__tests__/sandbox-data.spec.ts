@@ -12,7 +12,7 @@ describe('data', () => {
     const csvFilePath = path.resolve(__dirname, './sandbox-data-20230909.csv');
     const arr = await csvtojson().fromFile(csvFilePath);
 
-    for (let i = 0, len = arr.length; i < arr.length; i++) {
+    for (let i = 0, len = arr.length; i < len; i++) {
       const {
         id,
         custom_id: cid,
@@ -27,7 +27,7 @@ describe('data', () => {
       // if (id !== 'd2e5bf28-e33f-4843-ad7d-21c56e904312') continue;
       // console.log(arr[i]);
 
-      // console.log(id, cid, i, len);
+      console.log(id, cid, i, len);
 
       if (def !== '') {
         const deoss = JSON.parse(deos);
