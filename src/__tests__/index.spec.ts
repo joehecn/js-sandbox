@@ -2,15 +2,44 @@
 
 import { describe, it, expect } from 'vitest';
 import JsSandbox from '../index';
+import customFunctions from './customFunctions';
 
 describe('Decode', () => {
-  it("Error: 'Encode' is not defined", async () => {
+  it('[JS-SANDBOX] system function: aaa is not allow!', async () => {
     try {
-      const jsSandbox = new JsSandbox();
-      await jsSandbox.init();
+      const jsSandbox = new JsSandbox({
+        systemFunctions: ['aaa'],
+      });
       await jsSandbox.runCodeSafe('', null);
     } catch (error) {
-      expect((error as any).message).toEqual("main function is not defined");
+      expect((error as any).message).toEqual('[JS-SANDBOX] system function: aaa is not allow!');
+    }
+  });
+
+  it('[JS-SANDBOX] custom function name is not unique!', async () => {
+    try {
+      const jsSandbox = new JsSandbox({
+        customFunctions: [
+          {
+            functionName: 'T_M_FLOAT_AB_CD',
+          },
+          {
+            functionName: 'T_M_FLOAT_AB_CD',
+          },
+        ],
+      });
+      await jsSandbox.runCodeSafe('', null);
+    } catch (error) {
+      expect((error as any).message).toEqual('[JS-SANDBOX] custom function name is not unique!');
+    }
+  });
+
+  it('[JS-SANDBOX] main function is not defined!', async () => {
+    try {
+      const jsSandbox = new JsSandbox();
+      await jsSandbox.runCodeSafe('', null);
+    } catch (error) {
+      expect((error as any).message).toEqual('[JS-SANDBOX] main function is not defined!');
     }
   });
 
@@ -23,10 +52,9 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
       });
-      await jsSandbox.init();
-      await jsSandbox.runCodeSafe(fun, {});
+      await jsSandbox.runCodeSafe(fun, {}, 'Decode');
     } catch (error) {
       expect((error as any).message).toEqual('interrupted');
     }
@@ -41,12 +69,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, {});
     } catch (error) {
-      expect((error as any).message).toEqual('The number out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The number out of range!');
     }
   });
 
@@ -74,7 +102,6 @@ describe('Decode', () => {
     const jsSandbox = new JsSandbox({
       mainFunction: 'Decode'
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
 
     expect(res).toEqual({
@@ -161,9 +188,9 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
 
     expect(res).toEqual({
@@ -197,9 +224,9 @@ describe('Decode', () => {
         '<?xml version="1.0" encoding="UTF-8"?>\r\n<EventNotificationAlert version="1.0" xmlns="urn:psialliance-org">\r\n<ipAddress>192.168.10.32</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>24:28:fd:f3:3a:11</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-10-12T19:15:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-10-12T19:00:00+08:00</startTime>\r\n<endTime>2021-10-12T19:15:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>1</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n',
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual(option);
   });
@@ -302,9 +329,9 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     console.log(res);
 
@@ -457,9 +484,9 @@ describe('Decode', () => {
       },
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Encode'
+      mainFunction: 'Encode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       payload: [
@@ -527,9 +554,9 @@ describe('Decode', () => {
       quantity: 24,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: {
@@ -568,12 +595,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
-      expect((error as any).message).toEqual('The skip out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The skip out of range!');
     }
   });
   it('T_M_FLOAT_AB_CD 123', async () => {
@@ -591,16 +618,15 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
 
     expect(res).toEqual({
-      data: 123
+      data: 123,
     });
-  })
-
+  });
 
   it('T_M_FLOAT_CD_AB skip < 0', async () => {
     const fun = `
@@ -615,12 +641,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
-      expect((error as any).message).toEqual('The skip out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The skip out of range!');
     }
   });
   it('T_M_LONG_AB_CD skip < 0', async () => {
@@ -636,12 +662,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
-      expect((error as any).message).toEqual('The skip out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The skip out of range!');
     }
   });
   it('T_M_LONG_CD_AB skip < 0', async () => {
@@ -657,12 +683,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
-      expect((error as any).message).toEqual('The skip out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The skip out of range!');
     }
   });
   it('T_M_SIGNED skip < 0', async () => {
@@ -678,12 +704,12 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode'
+        mainFunction: 'Decode',
+        customFunctions,
       });
-      await jsSandbox.init();
       await jsSandbox.runCodeSafe(fun, option);
     } catch (error) {
-      expect((error as any).message).toEqual('The skip out of range');
+      expect((error as any).message).toEqual('[CUSTOM-FUNCTION] The skip out of range!');
     }
   });
 
@@ -701,9 +727,9 @@ describe('Decode', () => {
       arr: [57920, 1],
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: 123456,
@@ -724,9 +750,9 @@ describe('Decode', () => {
       num: 123,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: [17142, 0],
@@ -747,9 +773,9 @@ describe('Decode', () => {
       num: 123,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode'
+      mainFunction: 'Decode',
+      customFunctions,
     });
-    await jsSandbox.init();
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: [0, 17142],

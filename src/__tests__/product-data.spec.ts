@@ -6,10 +6,10 @@ SELECT id, payload_encoder_script, payload_decoder_script, payload_encoder_optio
 
 import { describe, it, expect } from 'vitest';
 import JsSandbox from '../index';
+import customFunctions from './customFunctions';
 
 import csvtojson from 'csvtojson';
 import path from 'path';
-
 
 describe('data', () => {
   it('should be ok', async () => {
@@ -47,9 +47,9 @@ describe('data', () => {
 
           const der = derss[j];
           const jsSandbox = new JsSandbox({
-            mainFunction: 'Decode'
+            mainFunction: 'Decode',
+            customFunctions,
           });
-          await jsSandbox.init();
           const res1 = await jsSandbox.runCodeSafe(def, deo);
           expect(res1).toEqual(der);
         }
@@ -68,9 +68,9 @@ describe('data', () => {
 
           const enr = enrss[j];
           const jsSandbox = new JsSandbox({
-            mainFunction: 'Encode'
+            mainFunction: 'Encode',
+            customFunctions,
           });
-          await jsSandbox.init();
           const res2 = await jsSandbox.runCodeSafe(enf, eno);
           expect(res2).toEqual(enr);
         }
