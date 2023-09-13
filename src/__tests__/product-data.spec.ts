@@ -11,7 +11,7 @@ import customFunctions from './customFunctions';
 import csvtojson from 'csvtojson';
 import path from 'path';
 
-describe('data', () => {
+describe('product data', () => {
   it('should be ok', async () => {
     const csvFilePath = path.resolve(__dirname, './product-data-20230909.csv');
     const arr = await csvtojson().fromFile(csvFilePath);
@@ -47,7 +47,7 @@ describe('data', () => {
 
           const der = derss[j];
           const jsSandbox = new JsSandbox({
-            mainFunction: 'Decode',
+            entry: 'Decode',
             customFunctions,
           });
           const res1 = await jsSandbox.runCodeSafe(def, deo);
@@ -68,7 +68,7 @@ describe('data', () => {
 
           const enr = enrss[j];
           const jsSandbox = new JsSandbox({
-            mainFunction: 'Encode',
+            entry: 'Encode',
             customFunctions,
           });
           const res2 = await jsSandbox.runCodeSafe(enf, eno);

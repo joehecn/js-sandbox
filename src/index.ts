@@ -1,6 +1,14 @@
 import { getQuickJS, shouldInterruptAfterDeadline } from 'quickjs-emscripten';
+import * as acorn from 'acorn';
+import * as walk from 'acorn-walk';
 
 type SafeAny = any;
+
+type Mark = {
+  start: number;
+  end: number;
+  count: number;
+};
 
 export type CustomFunction = {
   functionName: string;
@@ -9,12 +17,12 @@ export type CustomFunction = {
 };
 
 export type JsSandboxOption = {
-  mainFunction?: string;
+  entry?: string;
   systemFunctions?: string[];
   customFunctions?: CustomFunction[];
 };
 
-export type RunOption = { [key: string]: SafeAny } | null;
+export type RunOption = SafeAny;
 
 const _ALLOW_SYSTEM_FUNCTIONS = ['console.log', 'btoa', 'atob'];
 
@@ -32,16 +40,17 @@ const ATOB__JSON__ = (...args: unknown[]) => {
 
 class JsSandbox {
   // 入口函数
-  private _mainFunction = 'main';
+  private _entry = 'main';
   // 全局系统函数
   private _systemFunctions: string[];
   // 全局自定义函数
   private _customFunctions: CustomFunction[] = [];
 
   constructor(option?: JsSandboxOption) {
-    const { mainFunction = '', systemFunctions = _ALLOW_SYSTEM_FUNCTIONS, customFunctions = [] } = option || {};
+    const { entry = '', systemFunctions = _ALLOW_SYSTEM_FUNCTIONS, customFunctions = [] } = option || {};
 
-    if (mainFunction) this._mainFunction = mainFunction;
+    if (entry) this._entry = entry;
+
     this._systemFunctions = this._getSystemFunctions(systemFunctions);
     this._customFunctions = this._getCustomFunctions(customFunctions);
   }
@@ -101,20 +110,77 @@ class JsSandbox {
     }
 
     return `
-      const option = JSON.parse(__OPTION__)
+      function warp () {
+        const __JS_SANDBOX_COVERAGE_START_ARR__ = []
 
-      ${atobStr}
+        function __JS_SANDBOX_COVERAGE_FUN__(start) {
+          __JS_SANDBOX_COVERAGE_START_ARR__.push(start)
+        }
 
-      ${customFunctionArr.join('')}
+        const option = JSON.parse(__OPTION__)
+  
+        ${atobStr}
+  
+        ${customFunctionArr.join('')}
+  
+        ${fun}
+  
+        const res = ${this._entry}(option)
+        return { res, __JS_SANDBOX_COVERAGE_START_ARR__ }
+      }
 
-      ${fun}
-
-      ${this._mainFunction}(option)
+      warp()
     `;
   }
 
-  public runCodeSafe(fun: string, option?: RunOption, mainFunction?: string) {
-    if (mainFunction) this._mainFunction = mainFunction;
+  private _parse(fun: string): acorn.Node {
+    return acorn.parse(fun, {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+    });
+  }
+
+  private _instrument(sourceAst: acorn.Node) {
+    const marks: Mark[] = [];
+
+    const nodeSet = new Set();
+    const ancestorWeakSet = new WeakSet();
+
+    walk.ancestor(sourceAst, {
+      Statement(node: acorn.Node, ancestors: acorn.Node[]) {
+        nodeSet.add(node);
+
+        ancestors.pop();
+        ancestors.forEach((n) => {
+          ancestorWeakSet.add(n);
+        });
+      },
+    });
+
+    for (const n of nodeSet) {
+      const node = n as acorn.Node;
+      if (!ancestorWeakSet.has(node)) {
+        const { start, end } = node;
+        marks.push({ start, end, count: 0 });
+      }
+    }
+
+    return marks.sort((a, b) => b.start - a.start);
+  }
+
+  private _generate(fun: string, marks: Mark[]): string {
+    for (let i = 0, len = marks.length; i < len; i++) {
+      const { start } = marks[i];
+      fun = `${fun.slice(0, start)}
+        __JS_SANDBOX_COVERAGE_FUN__(${start})
+        ${fun.slice(start)}`;
+    }
+
+    return fun;
+  }
+
+  private _runCodeSafe(fun: string, option?: RunOption, entry?: string) {
+    if (entry) this._entry = entry;
 
     return new Promise((resolve, reject) => {
       getQuickJS().then((quickjs) => {
@@ -201,6 +267,50 @@ class JsSandbox {
         runtime.dispose();
       });
     });
+  }
+
+  // TODO: Run on server side
+  public async runCodeSafe(fun: string, option?: RunOption, entry?: string) {
+    const result = await this._runCodeSafe(fun, option, entry);
+    const { res } = result as SafeAny;
+    return res;
+  }
+
+  // Coverage
+  public async tests(fun: string, options: RunOption[], entry?: string) {
+    const _setMarksCount = (marks: Mark[], startArr: number[]) => {
+      for (let i = 0, len = startArr.length; i < len; i++) {
+        const start = startArr[i];
+        const mark = marks.find((item) => item.start === start);
+        if (mark) mark.count++;
+      }
+    };
+
+    // parse to AST
+    const sourceAst = this._parse(fun);
+
+    // instrument
+    const marks = this._instrument(sourceAst);
+
+    // generate
+    const generateCode = this._generate(fun, marks);
+
+    // loop run code
+    const promiseArr = [];
+    for (let i = 0, len = options.length; i < len; i++) {
+      const option = options[i];
+      promiseArr.push(this._runCodeSafe(generateCode, option, entry));
+    }
+
+    const promiseResults = await Promise.all(promiseArr);
+
+    const results = [];
+    for (let i = 0, len = promiseResults.length; i < len; i++) {
+      const { res, __JS_SANDBOX_COVERAGE_START_ARR__ } = promiseResults[i] as SafeAny;
+      _setMarksCount(marks, __JS_SANDBOX_COVERAGE_START_ARR__);
+      results.push(res);
+    }
+    return { results, marks };
   }
 }
 

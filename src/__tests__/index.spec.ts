@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import JsSandbox from '../index';
 import customFunctions from './customFunctions';
 
-describe('Decode', () => {
+describe('runCodeSafe', () => {
   it('[JS-SANDBOX] system function: aaa is not allow!', async () => {
     try {
       const jsSandbox = new JsSandbox({
@@ -52,7 +52,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
       });
       await jsSandbox.runCodeSafe(fun, {}, 'Decode');
     } catch (error) {
@@ -69,7 +69,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, {});
@@ -181,7 +181,7 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -217,7 +217,7 @@ describe('Decode', () => {
         '<?xml version="1.0" encoding="UTF-8"?>\r\n<EventNotificationAlert version="1.0" xmlns="urn:psialliance-org">\r\n<ipAddress>192.168.10.32</ipAddress>\r\n<protocolType>HTTP</protocolType>\r\n<macAddress>24:28:fd:f3:3a:11</macAddress>\r\n<channelID>1</channelID>\r\n<dateTime>2021-10-12T19:15:00+08:00</dateTime>\r\n<activePostCount>1</activePostCount>\r\n<eventType>PeopleCounting</eventType>\r\n<eventState>active</eventState>\r\n<eventDescription>peopleCounting alarm</eventDescription>\r\n<channelName>Camera 01</channelName>\r\n<peopleCounting>\r\n<statisticalMethods>timeRange</statisticalMethods>\r\n<TimeRange>\r\n<startTime>2021-10-12T19:00:00+08:00</startTime>\r\n<endTime>2021-10-12T19:15:00+08:00</endTime>\r\n</TimeRange>\r\n<enter>0</enter>\r\n<exit>1</exit>\r\n<regionsID>1</regionsID>\r\n</peopleCounting>\r\n<childCounting>\r\n<enter>0</enter>\r\n<exit>0</exit>\r\n</childCounting>\r\n</EventNotificationAlert>\r\n',
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -322,7 +322,7 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -477,7 +477,7 @@ describe('Decode', () => {
       },
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Encode',
+      entry: 'Encode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -547,7 +547,7 @@ describe('Decode', () => {
       quantity: 24,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -588,7 +588,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, option);
@@ -611,7 +611,7 @@ describe('Decode', () => {
     };
 
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -634,7 +634,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, option);
@@ -655,7 +655,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, option);
@@ -676,7 +676,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, option);
@@ -697,7 +697,7 @@ describe('Decode', () => {
 
     try {
       const jsSandbox = new JsSandbox({
-        mainFunction: 'Decode',
+        entry: 'Decode',
         customFunctions,
       });
       await jsSandbox.runCodeSafe(fun, option);
@@ -720,7 +720,7 @@ describe('Decode', () => {
       arr: [57920, 1],
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -743,7 +743,7 @@ describe('Decode', () => {
       num: 123,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
@@ -766,12 +766,52 @@ describe('Decode', () => {
       num: 123,
     };
     const jsSandbox = new JsSandbox({
-      mainFunction: 'Decode',
+      entry: 'Decode',
       customFunctions,
     });
     const res = await jsSandbox.runCodeSafe(fun, option);
     expect(res).toEqual({
       data: [0, 17142],
+    });
+  });
+});
+
+describe('tests', () => {
+  it('should be ok', async () => {
+    const fun = `
+      function main(option) {
+        const { num } = option
+        if (num === 1) {
+          return num
+        }
+
+        return 2
+      }
+    `;
+    const options = [{ num: 1 }];
+
+    const jsSandbox = new JsSandbox();
+    const res = await jsSandbox.tests(fun, options);
+
+    expect(res).toEqual({
+      marks: [
+        {
+          count: 0,
+          end: 135,
+          start: 127,
+        },
+        {
+          count: 1,
+          end: 107,
+          start: 97,
+        },
+        {
+          count: 1,
+          end: 61,
+          start: 39,
+        },
+      ],
+      results: [1],
     });
   });
 });
