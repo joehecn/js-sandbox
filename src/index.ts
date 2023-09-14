@@ -5,7 +5,9 @@ import * as walk from 'acorn-walk';
 type SafeAny = any;
 
 type Mark = {
+  fatherType: string;
   start: number;
+  end: number;
   locations: number[];
   count: number;
 };
@@ -145,13 +147,22 @@ class JsSandbox {
     const marks: Mark[] = [];
 
     const nodeSet = new Set();
+    const nodeFatherMap = new WeakMap();
     const ancestorWeakSet = new WeakSet();
 
     walk.ancestor(sourceAst, {
       Statement(node: acorn.Node, ancestors: acorn.Node[]) {
+        // tslint:disable-next-line: no-console
+        console.log(ancestors.map((n) => n.type));
+
         nodeSet.add(node);
 
         ancestors.pop();
+
+        if (ancestors.length === 0) return;
+
+        nodeFatherMap.set(node, (ancestors.at(-1) as acorn.Node).type);
+
         ancestors.forEach((n) => {
           ancestorWeakSet.add(n);
         });
@@ -161,10 +172,14 @@ class JsSandbox {
     for (const n of nodeSet) {
       const node = n as acorn.Node;
       if (!ancestorWeakSet.has(node)) {
-        const { start, loc } = node;
+        const fatherType = nodeFatherMap.get(node) ?? '';
+        const { start, end, loc } = node;
         const { start: s, end: e } = loc!;
+
         marks.push({
+          fatherType,
           start,
+          end,
           locations: [s.line, s.column, e.line, e.column],
           count: 0,
         });
@@ -176,12 +191,18 @@ class JsSandbox {
 
   private _generate(fun: string, marks: Mark[]): string {
     for (let i = 0, len = marks.length; i < len; i++) {
-      const { start } = marks[i];
-      fun = `${fun.slice(0, start)}
-        __JS_SANDBOX_COVERAGE_FUN__(${start})
-        ${fun.slice(start)}`;
+      const { fatherType, start, end } = marks[i];
+
+      if (['IfStatement'].includes(fatherType)) {
+        fun = `${fun.slice(0, start)}{__JS_SANDBOX_COVERAGE_FUN__(${start});${fun.slice(start, end)}}${fun.slice(end)}`;
+      } else {
+        fun = `${fun.slice(0, start)}
+        __JS_SANDBOX_COVERAGE_FUN__(${start});${fun.slice(start)}`;
+      }
     }
 
+    // tslint:disable-next-line: no-console
+    console.log(fun);
     return fun;
   }
 

@@ -1,0 +1,61 @@
+---
+name: simple if statment
+fun: |
+  function main(option) {
+    const { num } = option
+    if (!(num === 1)) return num
+    return 2
+  }
+tests:
+  - name: covers then path
+    options:
+      - num: 1
+    expects:
+      marks:
+        - count: 1
+          locations: [4, 2, 4, 10]
+          start: 82
+          end: 90
+          fatherType: ""
+        - count: 0
+          locations: [3, 20, 3, 30]
+          start: 69
+          end: 79
+          fatherType: IfStatement
+        - count: 1
+          locations: [2, 2, 2, 24]
+          start: 26
+          end: 48
+          fatherType: BlockStatement
+      results: [2]
+
+---
+name: simple if block
+fun: |
+  function main(option) {
+    const { num } = option
+    if (num === 1) { return num }
+    return 2
+  }
+tests:
+  - name: covers then path
+    options:
+      - num: 1
+    expects:
+      marks:
+        - count: 0
+          locations: [4, 2, 4, 10]
+          start: 83
+          end: 91
+          fatherType: ""
+        - count: 1
+          locations: [3, 19, 3, 29]
+          start: 68
+          end: 78
+          fatherType: BlockStatement
+        - count: 1
+          locations: [2, 2, 2, 24]
+          start: 26
+          end: 48
+          fatherType: BlockStatement
+      results: [1]
