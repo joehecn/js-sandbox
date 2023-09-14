@@ -135,14 +135,14 @@ const customFunctions: CustomFunction[] = [
   },
   {
     functionName: 'T_H_GET_VALIDATE_CODE',
-    arrowGlobalFunction: () => {
-      return 'fu2021square';
-    },
+    arrowSandboxFunctionStr: `() => {
+      return option.__VALIDATE_CODE_FOR_TESTING__ || 'fu2021square';
+    }`,
   },
   {
     functionName: 'T_A_GET_STATUS',
     arrowSandboxFunctionStr: `() => {
-      return option.__STATUS__ || option.status;
+      return option.__STATUS_FOR_TESTING__ || option.status;
     }`,
   },
 ];

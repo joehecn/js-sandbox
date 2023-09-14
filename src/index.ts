@@ -1,12 +1,12 @@
-import { getQuickJS, shouldInterruptAfterDeadline } from 'quickjs-emscripten';
-import * as acorn from 'acorn';
-import * as walk from 'acorn-walk';
+import { getQuickJS, shouldInterruptAfterDeadline } from "quickjs-emscripten";
+import * as acorn from "acorn";
+import * as walk from "acorn-walk";
 
 type SafeAny = any;
 
 type Mark = {
   start: number;
-  end: number;
+  locations: number[];
   count: number;
 };
 
@@ -24,7 +24,7 @@ export type JsSandboxOption = {
 
 export type RunOption = SafeAny;
 
-const _ALLOW_SYSTEM_FUNCTIONS = ['console.log', 'btoa', 'atob'];
+const _ALLOW_SYSTEM_FUNCTIONS = ["console.log", "btoa", "atob"];
 
 const ATOB__JSON__ = (...args: unknown[]) => {
   const str = args[0];
@@ -40,14 +40,18 @@ const ATOB__JSON__ = (...args: unknown[]) => {
 
 class JsSandbox {
   // 入口函数
-  private _entry = 'main';
+  private _entry = "main";
   // 全局系统函数
   private _systemFunctions: string[];
   // 全局自定义函数
   private _customFunctions: CustomFunction[] = [];
 
   constructor(option?: JsSandboxOption) {
-    const { entry = '', systemFunctions = _ALLOW_SYSTEM_FUNCTIONS, customFunctions = [] } = option || {};
+    const {
+      entry = "",
+      systemFunctions = _ALLOW_SYSTEM_FUNCTIONS,
+      customFunctions = [],
+    } = option || {};
 
     if (entry) this._entry = entry;
 
@@ -71,16 +75,19 @@ class JsSandbox {
   }
 
   private _getCustomFunctions(customFunctions: CustomFunction[]) {
-    const set = new Set<string>(customFunctions.map((item) => item.functionName));
+    const set = new Set<string>(
+      customFunctions.map((item) => item.functionName)
+    );
     const arr = Array.from(set);
-    if (arr.length !== customFunctions.length) throw new Error('[JS-SANDBOX] custom function name is not unique!');
+    if (arr.length !== customFunctions.length)
+      throw new Error("[JS-SANDBOX] custom function name is not unique!");
 
     return customFunctions;
   }
 
   private _getCode(fun: string) {
-    let atobStr = '';
-    if (this._systemFunctions.includes('atob')) {
+    let atobStr = "";
+    if (this._systemFunctions.includes("atob")) {
       atobStr = `
         const atob = (...args) => {
           const json = ATOB__JSON__(...args)
@@ -92,7 +99,8 @@ class JsSandbox {
 
     const customFunctionArr = [];
     for (let i = 0, len = this._customFunctions.length; i < len; i++) {
-      const { functionName, arrowGlobalFunction, arrowSandboxFunctionStr } = this._customFunctions[i];
+      const { functionName, arrowGlobalFunction, arrowSandboxFunctionStr } =
+        this._customFunctions[i];
 
       if (arrowGlobalFunction) {
         customFunctionArr.push(`
@@ -121,7 +129,7 @@ class JsSandbox {
   
         ${atobStr}
   
-        ${customFunctionArr.join('')}
+        ${customFunctionArr.join("")}
   
         ${fun}
   
@@ -136,7 +144,8 @@ class JsSandbox {
   private _parse(fun: string): acorn.Node {
     return acorn.parse(fun, {
       ecmaVersion: 2022,
-      sourceType: 'module',
+      sourceType: "module",
+      locations: true,
     });
   }
 
@@ -160,8 +169,13 @@ class JsSandbox {
     for (const n of nodeSet) {
       const node = n as acorn.Node;
       if (!ancestorWeakSet.has(node)) {
-        const { start, end } = node;
-        marks.push({ start, end, count: 0 });
+        const { start, loc } = node;
+        const { start: s, end: e } = loc!;
+        marks.push({
+          start,
+          locations: [s.line, s.column, e.line, e.column],
+          count: 0,
+        });
       }
     }
 
@@ -186,52 +200,61 @@ class JsSandbox {
       getQuickJS().then((quickjs) => {
         // 运行时
         const runtime = quickjs.newRuntime();
-        runtime.setInterruptHandler(shouldInterruptAfterDeadline(Date.now() + 3000));
+        runtime.setInterruptHandler(
+          shouldInterruptAfterDeadline(Date.now() + 3000)
+        );
         runtime.setMemoryLimit(1024 * 640);
         runtime.setMaxStackSize(1024 * 320);
 
         const context = runtime.newContext();
 
         // 全局系统函数
-        if (this._systemFunctions.includes('console.log')) {
+        if (this._systemFunctions.includes("console.log")) {
           // console.log
-          const logHandle = context.newFunction('log', (...args: SafeAny[]) => {
+          const logHandle = context.newFunction("log", (...args: SafeAny[]) => {
             const nativeArgs = args.map(context.dump);
             // tslint:disable-next-line: no-console
-            console.log('[JS-SANDBOX]', ...nativeArgs);
+            console.log("[JS-SANDBOX]", ...nativeArgs);
           });
           const consoleHandle = context.newObject();
-          context.setProp(consoleHandle, 'log', logHandle);
-          context.setProp(context.global, 'console', consoleHandle);
+          context.setProp(consoleHandle, "log", logHandle);
+          context.setProp(context.global, "console", consoleHandle);
           consoleHandle.dispose();
           logHandle.dispose();
         }
-        if (this._systemFunctions.includes('btoa')) {
+        if (this._systemFunctions.includes("btoa")) {
           // btoa
-          const btoaHandle = context.newFunction('btoa', (...args: SafeAny[]) => {
-            const nativeArg = context.dump(args[0]);
-            const res = btoa(nativeArg);
+          const btoaHandle = context.newFunction(
+            "btoa",
+            (...args: SafeAny[]) => {
+              const nativeArg = context.dump(args[0]);
+              const res = btoa(nativeArg);
 
-            return context.newString(res);
-          });
-          context.setProp(context.global, 'btoa', btoaHandle);
+              return context.newString(res);
+            }
+          );
+          context.setProp(context.global, "btoa", btoaHandle);
           btoaHandle.dispose();
         }
-        if (this._systemFunctions.includes('atob')) {
+        if (this._systemFunctions.includes("atob")) {
           // atob
           // ---- ATOB
-          const ATOB_HANDLE = context.newFunction('ATOB__JSON__', (...args: SafeAny[]) => {
-            const nativeArgs = args.map(context.dump);
-            const res = ATOB__JSON__(...nativeArgs);
-            return context.newString(JSON.stringify({ res }));
-          });
-          context.setProp(context.global, 'ATOB__JSON__', ATOB_HANDLE);
+          const ATOB_HANDLE = context.newFunction(
+            "ATOB__JSON__",
+            (...args: SafeAny[]) => {
+              const nativeArgs = args.map(context.dump);
+              const res = ATOB__JSON__(...nativeArgs);
+              return context.newString(JSON.stringify({ res }));
+            }
+          );
+          context.setProp(context.global, "ATOB__JSON__", ATOB_HANDLE);
           ATOB_HANDLE.dispose();
         }
 
         // 全局自定义函数
         for (let i = 0, len = this._customFunctions.length; i < len; i++) {
-          const { functionName, arrowGlobalFunction } = this._customFunctions[i];
+          const { functionName, arrowGlobalFunction } =
+            this._customFunctions[i];
           if (!arrowGlobalFunction) continue;
 
           const jsonName = `${functionName}__JSON__`;
@@ -248,7 +271,7 @@ class JsSandbox {
 
         // 全局参数
         const optionHandle = context.newString(JSON.stringify(option ?? {}));
-        context.setProp(context.global, '__OPTION__', optionHandle);
+        context.setProp(context.global, "__OPTION__", optionHandle);
         optionHandle.dispose();
 
         const code = this._getCode(fun);
@@ -306,7 +329,9 @@ class JsSandbox {
 
     const results = [];
     for (let i = 0, len = promiseResults.length; i < len; i++) {
-      const { res, __JS_SANDBOX_COVERAGE_START_ARR__ } = promiseResults[i] as SafeAny;
+      const { res, __JS_SANDBOX_COVERAGE_START_ARR__ } = promiseResults[
+        i
+      ] as SafeAny;
       _setMarksCount(marks, __JS_SANDBOX_COVERAGE_START_ARR__);
       results.push(res);
     }

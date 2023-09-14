@@ -797,17 +797,17 @@ describe('tests', () => {
       marks: [
         {
           count: 0,
-          end: 135,
+          locations: [8, 8, 8, 16],
           start: 127,
         },
         {
           count: 1,
-          end: 107,
+          locations: [5, 10, 5, 20],
           start: 97,
         },
         {
           count: 1,
-          end: 61,
+          locations: [3, 8, 3, 30],
           start: 39,
         },
       ],
