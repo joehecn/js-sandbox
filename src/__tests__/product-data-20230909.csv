@@ -1517,7 +1517,7 @@ function Decode(option) {
  * 注意: 以<T_>开头的预设函数
  * */
 
-function Decode(option) {
+function Encode(option) {
 
 
   return { }

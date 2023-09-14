@@ -1,4 +1,4 @@
-// npm run test src/__tests__/product-data.spec.ts
+// npm run test src/__tests__/product-data-tests.spec.ts
 /**
 SELECT id, payload_encoder_script, payload_decoder_script, payload_encoder_option, payload_encoder_return, payload_decoder_option, payload_decoder_return, custom_id
   FROM public.device_profile;
@@ -40,23 +40,19 @@ describe('product data', () => {
         if (!Array.isArray(deoss)) deoss = [deoss];
         if (!Array.isArray(derss)) derss = [derss];
 
-        for (let j = 0, len = deoss.length; j < len; j++) {
-          // console.log('---- Decode:', j);
-          const deo = deoss[j];
+        const jsSandbox = new JsSandbox({
+          entry: 'Decode',
+          customFunctions,
+        });
 
-          if (Object.hasOwnProperty.call(deo, 'status')) {
-            console.log(id, cid, i, len);
-            console.log('---- Decode: option.status:', deo.status);
-          }
-
-          const der = derss[j];
-          const jsSandbox = new JsSandbox({
-            entry: 'Decode',
-            customFunctions,
-          });
-          const res1 = await jsSandbox.runCodeSafe(def, deo);
-          expect(res1).toEqual(der);
-        }
+        console.log('---- deoss');
+        console.log(deoss);
+        console.log('---- derss');
+        console.log(derss);
+        const { results } = await jsSandbox.tests(def, deoss);
+        console.log('---- results');
+        console.log(results);
+        expect(results).toEqual(derss);
       }
 
       if (enf !== '') {
@@ -66,22 +62,19 @@ describe('product data', () => {
         if (!Array.isArray(enoss)) enoss = [enoss];
         if (!Array.isArray(enrss)) enrss = [enrss];
 
-        for (let j = 0, len = enoss.length; j < len; j++) {
-          // console.log('---- Encode:', j);
-          const eno = enoss[j];
+        const jsSandbox = new JsSandbox({
+          entry: 'Encode',
+          customFunctions,
+        });
 
-          if (Object.hasOwnProperty.call(eno, 'status')) {
-            console.log('---- Encode: option.status:', eno.status);
-          }
-
-          const enr = enrss[j];
-          const jsSandbox = new JsSandbox({
-            entry: 'Encode',
-            customFunctions,
-          });
-          const res2 = await jsSandbox.runCodeSafe(enf, eno);
-          expect(res2).toEqual(enr);
-        }
+        console.log('---- enoss');
+        console.log(enoss);
+        console.log('---- enrss');
+        console.log(enrss);
+        const { results } = await jsSandbox.tests(enf, enoss);
+        console.log('---- results');
+        console.log(results);
+        expect(results).toEqual(enrss);
       }
     }
   });
